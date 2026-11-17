@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Sombra Technologies | Employee Portal</title>
+
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+
+<body>
+
+<div class="archive">
+
+    <header>
+        <h2>SOMBRA TECHNOLOGIES</h2>
+        <small>EMPLOYEE WORKSPACE</small>
+    </header>
+
+    <main>
+
+        <p class="label">INTERNAL EMPLOYEE PORTAL</p>
+
+        <h1>Welcome to Sombra Technologies</h1>
+
+        <p>
+            Your central location for company resources,
+            employee information, and IT services.
+        </p>
+
+        <hr>
+
+        <h3>Company Overview</h3>
+
+        <p>
+            Active employees:
+            <strong><%= employeeCount %></strong>
+        </p>
+
+        <h3>Departments</h3>
+
+        <% departments.forEach(department => { %>
+
+            <div class="file">
+
+                <div>
+                    <strong><%= department.name %></strong>
+
+                    <small>
+                        <%= department.description %>
+                    </small>
+                </div>
+
+            </div>
+
+        <% }) %>
+
+        <h3>Workspace Navigation</h3>
+
+        <p>
+            <a href="/directory">Employee Directory</a>
+        </p>
+
+        <p>
+            <a href="/api/documents">Company Documents</a>
+        </p>
+
+    </main>
+
+</div>
+
+</body>
+</html>

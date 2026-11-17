@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>IT Archive | Sombra Technologies</title>
+
+        <link rel="stylesheet" href="/css/app.css" />
+
+        <style>
+            .archive-document {
+                max-width: 900px;
+                margin: 50px auto;
+                padding: 45px;
+                background: #fff;
+                color: #252936;
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+                font-family: Arial, sans-serif;
+            }
+
+            .document-header {
+                border-bottom: 3px solid #7028a5;
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+            }
+
+            .company-name {
+                color: #7028a5;
+                font-size: 13px;
+                font-weight: bold;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+            }
+
+            .document-title {
+                font-size: 28px;
+                margin: 15px 0 5px;
+            }
+
+            .document-subtitle {
+                color: #737987;
+                font-size: 14px;
+            }
+
+            .metadata {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                background: #f4f2f7;
+                padding: 20px;
+                margin: 25px 0;
+                font-size: 13px;
+            }
+
+            .metadata strong {
+                display: block;
+                color: #7028a5;
+                margin-bottom: 5px;
+            }
+
+            .document-section {
+                margin: 30px 0;
+            }
+
+            .document-section h2 {
+                font-size: 17px;
+                color: #7028a5;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 8px;
+            }
+
+            .document-section p,
+            .document-section li {
+                font-size: 14px;
+                line-height: 1.8;
+            }
+
+            .system-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 15px 0;
+                font-size: 13px;
+            }
+
+            .system-table th,
+            .system-table td {
+                padding: 12px;
+                border: 1px solid #ddd;
+                text-align: left;
+            }
+
+            .system-table th {
+                background: #f4f2f7;
+            }
+
+            .status-warning {
+                color: #b56a00;
+                font-weight: bold;
+            }
+
+            .status-retired {
+                color: #16834b;
+                font-weight: bold;
+            }
+
+            .internal-note {
+                background: #fff6e5;
+                border-left: 4px solid #e3a52e;
+                padding: 15px;
+                margin: 20px 0;
+                font-size: 13px;
+            }
+
+            .document-footer {
+                border-top: 1px solid #ddd;
+                margin-top: 40px;
+                padding-top: 15px;
+                color: #888;
+                font-size: 11px;
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .classification {
+                color: #a33;
+                font-weight: bold;
+                letter-spacing: 1px;
+            }
+
+            .archive-stamp {
+                display: inline-block;
+                border: 2px solid #7028a5;
+                color: #7028a5;
+                padding: 6px 14px;
+                transform: rotate(-4deg);
+                font-weight: bold;
+                font-size: 12px;
+                margin-top: 15px;
+            }
+
+            @media (max-width: 650px) {
+                .archive-document {
+                    margin: 15px;
+                    padding: 22px;
+                }
+
+                .metadata {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+
+    <body style="background: #17151d">
+        <main class="archive-document">
+            <header class="document-header">
+                <div class="company-name">Sombra Technologies</div>
+
+                <h1 class="document-title">
+                    Infrastructure Retirement & Access Review
+                </h1>
+
+                <div class="document-subtitle">
+                    Information Technology Department · Archived Infrastructure
+                    Records
+                </div>
+
+                <div class="archive-stamp">ARCHIVED COPY</div>
+            </header>
+
+            <section class="metadata">
+                <div>
+                    <strong>DOCUMENT ID</strong>
+                    IT-2024-0918
+                </div>
+
+                <div>
+                    <strong>ORIGINAL DATE</strong>
+                    September 18, 2024
+                </div>
+
+                <div>
+                    <strong>DEPARTMENT</strong>
+                    Information Technology
+                </div>
+
+                <div>
+                    <strong>DOCUMENT OWNER</strong>
+                    Infrastructure Operations
+                </div>
+
+                <div>
+                    <strong>CLASSIFICATION</strong>
+                    Internal Use Only
+                </div>
+
+                <div>
+                    <strong>LAST ARCHIVED</strong>
+                    October 02, 2024
+                </div>
+            </section>
+
+            <section class="document-section">
+                <h2>1. Executive Summary</h2>
+
+                <p>
+                    This report documents the retirement of legacy
+                    infrastructure services following the migration of Sombra
+                    Technologies' internal employee portal to the current
+                    production environment.
+                </p>
+
+                <p>
+                    The migration included the removal of legacy authentication
+                    services, archival storage, and several automated
+                    maintenance processes. Most services were successfully
+                    decommissioned. A small number of cleanup tasks remained
+                    open at the time of this report.
+                </p>
+            </section>
+
+            <section class="document-section">
+                <h2>2. Legacy Service Accounts</h2>
+
+                <p>
+                    The following service identities were reviewed as part of
+                    the infrastructure retirement process.
+                </p>
+
+                <table class="system-table">
+                    <thead>
+                        <tr>
+                            <th>Service Identity</th>
+                            <th>Purpose</th>
+                            <th>Retirement Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>svc_portal_old</td>
+                            <td>Legacy portal authentication</td>
+                            <td class="status-retired">Disabled</td>
+                        </tr>
+
+                        <tr>
+                            <td>svc_archive</td>
+                            <td>Historical document archive</td>
+                            <td class="status-warning">Review Required</td>
+                        </tr>
+
+                        <tr>
+                            <td>svc_backup_legacy</td>
+                            <td>Automated backup rotation</td>
+                            <td class="status-retired">Disabled</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="internal-note">
+                    <strong>Outstanding Action:</strong>
+                    The svc_archive identity was scheduled for retirement after
+                    the final validation of historical document access. The
+                    associated cleanup task was not marked complete.
+                </div>
+            </section>
+
+            <section class="document-section">
+                <h2>3. Authentication Review</h2>
+
+                <p>
+                    During a routine review in November 2026, the monitoring
+                    team identified authentication failures associated with the
+                    previously retired archive identity.
+                </p>
+
+                <table class="system-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Identity</th>
+                            <th>Event</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>2026-11-12 02:14 UTC</td>
+                            <td>svc_archive</td>
+                            <td>Authentication failure</td>
+                        </tr>
+
+                        <tr>
+                            <td>2026-11-12 02:16 UTC</td>
+                            <td>svc_archive</td>
+                            <td>Authentication failure</td>
+                        </tr>
+
+                        <tr>
+                            <td>2026-11-12 02:19 UTC</td>
+                            <td>svc_archive</td>
+                            <td>Authentication failure</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    The events were escalated to Infrastructure Operations. The
+                    account must not be reactivated without approval.
+                    Investigators should verify whether scheduled jobs or
+                    archived systems still reference this identity.
+                </p>
+            </section>
+
+            <section class="document-section">
+                <h2>4. Related Support Requests</h2>
+
+                <p>
+                    The following support request was associated with the
+                    archive retirement process.
+                </p>
+
+                <table class="system-table">
+                    <thead>
+                        <tr>
+                            <th>Ticket</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>ST-4930</td>
+                            <td>Archive share permissions review</td>
+                            <td class="status-warning">Pending Verification</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    The ticket references the historical archive share and
+                    recommends confirming that public-facing access was removed
+                    after the migration.
+                </p>
+            </section>
+
+            <section class="document-section">
+                <h2>5. Migration Cleanup Notes</h2>
+
+                <ul>
+                    <li>Legacy authentication services were decommissioned.</li>
+                    <li>
+                        Historical documents were moved to archival storage.
+                    </li>
+                    <li>Old service identities were scheduled for removal.</li>
+                    <li>
+                        Public web-root mappings were expected to be removed
+                        after validation.
+                    </li>
+                    <li>Final access verification remained outstanding.</li>
+                </ul>
+
+                <p>
+                    The infrastructure team should verify that no historical
+                    backup directories or obsolete service configurations remain
+                    accessible through the employee portal.
+                </p>
+            </section>
+
+            <section class="document-section">
+                <h2>6. Report Conclusion</h2>
+
+                <p>
+                    The 2024 infrastructure migration was considered
+                    operationally complete, with the exception of the
+                    outstanding cleanup and access verification tasks documented
+                    above.
+                </p>
+
+                <p>
+                    Any unexpected activity involving retired service identities
+                    should be escalated to Information Technology immediately.
+                </p>
+            </section>
+
+            <footer class="document-footer">
+                <span>Sombra Technologies · IT Infrastructure</span>
+                <span class="classification">INTERNAL USE ONLY</span>
+            </footer>
+        </main>
+    </body>
+</html>

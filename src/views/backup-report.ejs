@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>IT Archive Report</title>
+        <link rel="stylesheet" href="/css/app.css" />
+    </head>
+
+    <body>
+        <div class="archive">
+            <header>
+                <h2>SOMBRA TECHNOLOGIES</h2>
+                <small>INFORMATION TECHNOLOGY</small>
+            </header>
+
+            <main>
+                <p class="label">INTERNAL · ARCHIVED REPORT</p>
+
+                <h1>Infrastructure Migration — Closeout Notes</h1>
+
+                <p>
+                    Report IT-2024-0918<br />
+                    Prepared by Infrastructure Operations<br />
+                    September 18, 2024
+                </p>
+
+                <hr />
+
+                <h3>1. Archive Retirement</h3>
+
+                <p>
+                    The legacy migration archive was retained temporarily after
+                    the employee portal cutover. The public web root mapping was
+                    expected to be removed after validation. The cleanup task
+                    remains open.
+                </p>
+
+                <h3>2. Identity Follow-up</h3>
+
+                <p>
+                    During migration, engineers identified the retired service
+                    identity:
+
+                    <strong>svc_archive</strong>
+                </p>
+
+                <p>
+                    Authentication failures for this identity were recorded
+                    again in November 2026. Do not reactivate it. Confirm that
+                    its credentials and dependent jobs have been retired.
+                </p>
+
+                <h3>3. Related Service Request</h3>
+
+                <p>
+                    See support ticket:
+
+                    <strong>BT-4930</strong>
+
+                    Archive share permissions review.
+                </p>
+
+                <h3>4. Closeout Status</h3>
+
+                <p>
+                    Archive path cleanup and service identity retirement were
+                    both listed as pending. The incident response team should
+                    correlate these items with current access logs.
+                </p>
+
+                <div class="flag">
+                    <p>CHALLENGE FLAG</p>
+
+                    <code><%= challenge.flag %></code>
+                </div>
+
+                <footer>
+                    Synthetic training artifact. Sombra Technologies Internal
+                    Records.
+                </footer>
+            </main>
+        </div>
+    </body>
+</html>

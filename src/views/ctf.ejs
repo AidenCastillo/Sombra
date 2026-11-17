@@ -1,0 +1,612 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Security Operations | Sombra Technologies</title>
+
+    <style>
+        :root {
+            --background: #100e15;
+            --surface: #191620;
+            --surface-light: #211c2b;
+            --border: #342b40;
+            --purple: #a855f7;
+            --purple-light: #c084fc;
+            --text: #f4effa;
+            --muted: #9991a6;
+            --green: #4ade80;
+            --red: #fb7185;
+            --yellow: #facc15;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            font-family: Arial, sans-serif;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .navbar {
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6%;
+            background: #17131e;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            font-weight: bold;
+            letter-spacing: 3px;
+            color: var(--purple-light);
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 25px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .nav-right a:hover {
+            color: white;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 45px auto;
+            padding: 0 25px;
+        }
+
+        .eyebrow {
+            color: var(--purple-light);
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 12px 0;
+            font-size: 36px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            line-height: 1.6;
+            max-width: 650px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 35px 0;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 22px;
+            border-radius: 9px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 45px 0 20px;
+        }
+
+        .section-heading h2 {
+            font-size: 19px;
+        }
+
+        .section-heading span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .challenge-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 23px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .challenge-card:hover {
+            border-color: var(--purple);
+            transform: translateY(-2px);
+        }
+
+        .challenge-card.solved {
+            border-color: #287c50;
+        }
+
+        .challenge-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category {
+            color: var(--purple-light);
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .points {
+            color: var(--yellow);
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .challenge-card h3 {
+            font-size: 20px;
+            margin: 18px 0 10px;
+        }
+
+        .challenge-description {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+            min-height: 65px;
+        }
+
+        .objective {
+            border-left: 2px solid var(--purple);
+            padding: 10px 13px;
+            background: var(--surface-light);
+            margin: 18px 0;
+            font-size: 12px;
+            color: #d7cce5;
+        }
+
+        .flag-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #100e15;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            color: white;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--purple);
+        }
+
+        button {
+            background: var(--purple);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #9333ea;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        details {
+            margin-top: 15px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        details summary {
+            cursor: pointer;
+            color: var(--purple-light);
+        }
+
+        details li {
+            margin: 8px 0;
+        }
+
+        .solved-label {
+            color: var(--green);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .notice {
+            padding: 15px 18px;
+            margin: 20px 0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .notice.correct {
+            background: #123322;
+            color: var(--green);
+            border: 1px solid #287c50;
+        }
+
+        .notice.incorrect {
+            background: #351821;
+            color: var(--red);
+            border: 1px solid #7f3042;
+        }
+
+        .notice.warning {
+            background: #352b17;
+            color: var(--yellow);
+            border: 1px solid #80621d;
+        }
+
+        .leaderboard {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .leaderboard th,
+        .leaderboard td {
+            padding: 15px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .leaderboard th {
+            color: var(--muted);
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 1px;
+            background: var(--surface-light);
+        }
+
+        .leaderboard tr:last-child td {
+            border-bottom: none;
+        }
+
+        .leaderboard td:last-child {
+            color: var(--yellow);
+            font-weight: bold;
+        }
+
+        .team-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 22px;
+            margin-top: 30px;
+        }
+
+        .team-panel form {
+            display: flex;
+            gap: 12px;
+            max-width: 500px;
+        }
+
+        .team-panel button {
+            min-width: 120px;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 30px 6%;
+            margin-top: 80px;
+            color: var(--muted);
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 750px) {
+            .challenge-grid,
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .team-panel form {
+                flex-direction: column;
+            }
+
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .container {
+                margin-top: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand">SOMBRA</a>
+
+    <div class="nav-right">
+        <a href="/">Corporate Portal</a>
+        <a href="/directory">Directory</a>
+        <a href="/ctf">Security Operations</a>
+    </div>
+</nav>
+
+<main class="container">
+
+    <div class="eyebrow">Sombra Technologies / Security Division</div>
+
+    <h1>Security Operations Center</h1>
+
+    <p class="subtitle">
+        Investigate security incidents, identify weaknesses in internal
+        infrastructure, and demonstrate your technical capabilities.
+        Every discovery brings you closer to understanding the incident.
+    </p>
+
+    <% if (status === "correct") { %>
+        <div class="notice correct">
+            ✓ Correct flag. Challenge completed and points awarded.
+        </div>
+    <% } else if (status === "incorrect") { %>
+        <div class="notice incorrect">
+            ✕ Incorrect flag. Review your findings and try again.
+        </div>
+    <% } else if (status === "already-solved") { %>
+        <div class="notice warning">
+            This team has already completed that challenge.
+        </div>
+    <% } else if (status === "invalid") { %>
+        <div class="notice warning">
+            Please enter a valid flag.
+        </div>
+    <% } %>
+
+    <div class="stats">
+
+        <div class="stat-card">
+            <div class="stat-label">Available Challenges</div>
+            <div class="stat-value"><%= challenges.length %></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Challenges Solved</div>
+            <div class="stat-value"><%= solvedIds.length %></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Your Score</div>
+            <div class="stat-value">
+                <%= teamScore ? teamScore.points : 0 %>
+            </div>
+        </div>
+
+    </div>
+
+    <section class="team-panel">
+        <div class="eyebrow">Participant Identification</div>
+        <h2>Team Profile</h2>
+
+        <p class="subtitle">
+            Enter your team's name to track its challenge progress
+            and leaderboard position.
+        </p>
+
+        <form action="/ctf" method="GET">
+            <input
+                type="text"
+                name="team"
+                placeholder="Enter team name"
+                value="<%= teamName %>"
+                maxlength="32"
+                required
+            >
+
+            <button type="submit">Load Team</button>
+        </form>
+
+        <% if (teamScore) { %>
+            <p class="subtitle">
+                <strong><%= teamScore.teamName %></strong> —
+                <%= teamScore.solved %> challenges completed,
+                <%= teamScore.points %> points.
+            </p>
+        <% } %>
+    </section>
+
+    <div class="section-heading">
+        <h2>Available Challenges</h2>
+        <span>FLAG FORMAT: SOMBRA{...}</span>
+    </div>
+
+    <div class="challenge-grid">
+
+        <% challenges.forEach((challenge, index) => { %>
+
+            <% const isSolved = solvedIds.includes(challenge.id); %>
+
+            <article class="challenge-card <%= isSolved ? 'solved' : '' %>">
+
+                <div class="challenge-top">
+                    <span class="category">
+                        <%= challenge.category %>
+                    </span>
+
+                    <span class="points">
+                        <%= challenge.points %> PTS
+                    </span>
+                </div>
+
+                <h3>
+                    <%= String(index + 1).padStart(2, "0") %>.
+                    <%= challenge.name %>
+                </h3>
+
+                <p class="challenge-description">
+                    <%= challenge.description %>
+                </p>
+
+                <div class="objective">
+                    <strong>OBJECTIVE</strong><br>
+                    <%= challenge.objective %>
+                </div>
+
+                <% if (isSolved) { %>
+
+                    <div class="solved-label">
+                        ✓ COMPLETED
+                    </div>
+
+                <% } else { %>
+
+                    <form
+                        action="/ctf/submit"
+                        method="POST"
+                        class="flag-form"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="challengeId"
+                            value="<%= challenge.id %>"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="teamName"
+                            value="<%= teamName %>"
+                        >
+
+                        <input
+                            type="text"
+                            name="flag"
+                            placeholder="SOMBRA{...}"
+                            autocomplete="off"
+                            required
+                        >
+
+                        <button type="submit" <%= !teamName ? "disabled" : "" %>>
+                            Submit Flag
+                        </button>
+
+                    </form>
+
+                    <% if (!teamName) { %>
+                        <p class="subtitle">
+                            Load a team profile before submitting flags.
+                        </p>
+                    <% } %>
+
+                <% } %>
+
+                <% if (challenge.hints && challenge.hints.length) { %>
+                    <details>
+                        <summary>View Hints</summary>
+
+                        <ol>
+                            <% challenge.hints.forEach(hint => { %>
+                                <li><%= hint %></li>
+                            <% }) %>
+                        </ol>
+                    </details>
+                <% } %>
+
+            </article>
+
+        <% }) %>
+
+    </div>
+
+    <section>
+        <div class="section-heading">
+            <h2>Team Leaderboard</h2>
+            <span>TOP 10 TEAMS</span>
+        </div>
+
+        <table class="leaderboard">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Team</th>
+                    <th>Challenges</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <% if (leaderboard.length === 0) { %>
+
+                    <tr>
+                        <td colspan="4">No teams have scored yet.</td>
+                    </tr>
+
+                <% } %>
+
+                <% leaderboard.forEach((team, index) => { %>
+
+                    <tr>
+                        <td>#<%= index + 1 %></td>
+                        <td><%= team.teamName %></td>
+                        <td><%= team.solved %></td>
+                        <td><%= team.points %></td>
+                    </tr>
+
+                <% }) %>
+
+            </tbody>
+        </table>
+    </section>
+
+</main>
+
+<footer>
+    SOMBRA TECHNOLOGIES · SECURITY OPERATIONS
+    <span style="float:right">INTERNAL TRAINING ENVIRONMENT</span>
+</footer>
+
+</body>
+</html>

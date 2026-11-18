@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Company News | Sombra Corporation</title>
+
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                background: #f3f5f8;
+                color: #253044;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            .topbar {
+                background: #17243a;
+                color: white;
+                padding: 18px 7%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .brand {
+                font-size: 21px;
+                font-weight: bold;
+                letter-spacing: 1px;
+            }
+
+            .brand span {
+                color: #56a8e8;
+            }
+
+            .topbar small {
+                color: #b7c3d3;
+            }
+
+            .nav {
+                background: white;
+                padding: 13px 7%;
+                border-bottom: 1px solid #dfe4eb;
+                display: flex;
+                gap: 25px;
+            }
+
+            .nav a {
+                text-decoration: none;
+                color: #586579;
+                font-size: 14px;
+            }
+
+            .nav a.active {
+                color: #2878bd;
+                font-weight: bold;
+            }
+
+            .container {
+                max-width: 1150px;
+                margin: 40px auto;
+                padding: 0 24px;
+            }
+
+            .page-heading {
+                margin-bottom: 30px;
+            }
+
+            .page-heading h1 {
+                font-size: 30px;
+                margin-bottom: 8px;
+            }
+
+            .page-heading p {
+                color: #718096;
+                margin: 0;
+            }
+
+            .layout {
+                display: grid;
+                grid-template-columns: 1fr 300px;
+                gap: 25px;
+            }
+
+            .featured {
+                background: #1c3656;
+                color: white;
+                border-radius: 9px;
+                padding: 30px;
+                margin-bottom: 22px;
+            }
+
+            .featured .tag {
+                background: #317dbb;
+                padding: 5px 10px;
+                border-radius: 4px;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .featured h2 {
+                font-size: 25px;
+                line-height: 1.3;
+                margin: 22px 0 12px;
+            }
+
+            .featured p {
+                color: #d0dceb;
+                line-height: 1.7;
+            }
+
+            .meta {
+                font-size: 12px;
+                color: #8492a6;
+                margin-top: 18px;
+            }
+
+            .featured .meta {
+                color: #b8c9dc;
+            }
+
+            .news-card {
+                background: white;
+                border: 1px solid #e1e6ed;
+                border-radius: 8px;
+                padding: 24px;
+                margin-bottom: 15px;
+            }
+
+            .news-card h3 {
+                font-size: 18px;
+                margin: 12px 0 10px;
+                color: #263b56;
+            }
+
+            .news-card p {
+                color: #68778a;
+                font-size: 14px;
+                line-height: 1.7;
+            }
+
+            .category {
+                color: #2878bd;
+                font-size: 11px;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
+            }
+
+            .sidebar-card {
+                background: white;
+                border: 1px solid #e1e6ed;
+                border-radius: 8px;
+                padding: 22px;
+                margin-bottom: 18px;
+            }
+
+            .sidebar-card h3 {
+                margin-top: 0;
+                font-size: 16px;
+            }
+
+            .announcement {
+                padding: 13px 0;
+                border-bottom: 1px solid #edf0f4;
+            }
+
+            .announcement:last-child {
+                border-bottom: none;
+            }
+
+            .announcement strong {
+                display: block;
+                font-size: 13px;
+                margin-bottom: 5px;
+            }
+
+            .announcement small {
+                color: #8995a5;
+                font-size: 11px;
+            }
+
+            .author {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 18px;
+            }
+
+            .avatar {
+                background: #e4edf7;
+                color: #28669d;
+                width: 35px;
+                height: 35px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                font-weight: bold;
+                font-size: 12px;
+            }
+
+            .author-info strong {
+                display: block;
+                font-size: 12px;
+            }
+
+            .author-info small {
+                color: #8793a2;
+                font-size: 11px;
+            }
+
+            footer {
+                text-align: center;
+                color: #9aa5b3;
+                font-size: 12px;
+                padding: 30px;
+                margin-top: 30px;
+                border-top: 1px solid #e0e5eb;
+            }
+
+            @media (max-width: 750px) {
+                .layout {
+                    grid-template-columns: 1fr;
+                }
+
+                .topbar,
+                .nav {
+                    padding-left: 20px;
+                    padding-right: 20px;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <header class="topbar">
+            <div class="brand">SOMBRA<span>.</span> CORPORATION</div>
+            <small>INTERNAL EMPLOYEE NETWORK</small>
+        </header>
+
+        <nav class="nav">
+            <a href="/">Dashboard</a>
+            <a href="/directory">Employee Directory</a>
+            <a href="/documents">Documents</a>
+            <a href="/news" class="active">Company News</a>
+        </nav>
+
+        <main class="container">
+            <div class="page-heading">
+                <h1>Company News & Updates</h1>
+                <p>
+                    Stay informed on company developments, announcements, and
+                    internal initiatives.
+                </p>
+            </div>
+
+            <div class="layout">
+                <section>
+                    <article class="featured">
+                        <span class="tag">Company Announcement</span>
+
+                        <h2>
+                            Corporate Infrastructure Modernization Initiative
+                            Enters Phase II
+                        </h2>
+
+                        <p>
+                            Sombra Corporation has officially begun the second
+                            phase of its infrastructure modernization
+                            initiative. The project will focus on consolidating
+                            internal services, improving system availability,
+                            and standardizing department-level access controls
+                            across regional offices.
+                        </p>
+
+                        <div class="meta">
+                            November 17, 2026 · Corporate Communications
+                        </div>
+
+                        <div class="author">
+                            <div class="avatar">EC</div>
+                            <div class="author-info">
+                                <strong>Emily Carter</strong>
+                                <small
+                                    >Director of Corporate Communications</small
+                                >
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="news-card">
+                        <span class="category">DO NOT READ LAST ARTICLE</span>
+
+                        <h3>DO NOT READ LAST ARTICLE</h3>
+
+                        <p>
+                            The previous article contains sensitive information that is not intended for general employee access. Please disregard the content and do not share it with others as we currently try to remove it from the system. If you have any questions or concerns, please contact the Corporate Communications Division for clarification.
+                        </p>
+                    </article>
+
+                    <article class="news-card">
+                        <span class="category">Security Best Practices</span>
+
+                        <h3>Update Your Internal Passwords and Enable MFA</h3>
+
+                        <p>
+                            The Information Security Division reminds all
+                            employees to update their internal passwords and
+                            enable multi-factor authentication (MFA) for
+                            corporate accounts. These measures help protect
+                            sensitive data and prevent unauthorized access.
+                        </p>
+
+                        <p>
+                            Remember to use strong, unique passwords and avoid reusing them across different platforms. For assistance with
+                            password updates or MFA setup, contact the IT Help Desk or refer to the internal security guidelines.
+
+                            Examples of a strong password include a combination of uppercase and lowercase letters, numbers, and special characters. Avoid using easily guessable information such as birthdays or common words.
+                        </p>
+                        <p>
+                            Ex. "as8CBak1&39z0" or "29zmB@801mC" are considered strong passwords.
+                        </p>
+                        <p>
+                            Ex. "password123" or "qwerty" are weak and should be avoided.
+                        </p>
+                        <p>
+                            Always keep your passwords secure and never share them with anyone. I would never tell you my password is "SombraRocks2026!" because that would be a security risk.
+                        </p>
+
+                        <div class="meta">
+                            November 15, 2026 · Information Security
+                        </div>
+                        <div class="author">
+                            <div class="avatar">AS</div>
+                            <div class="author-info">
+                                <strong>Amanda Smith</strong>
+                                <small
+                                    >Information Security Analyst</small
+                                >
+                        </div>
+                    </article>
+
+                    <article class="news-card">
+                        <span class="category">IT & Infrastructure</span>
+
+                        <h3>
+                            Internal Document Management System Scheduled for
+                            Maintenance
+                        </h3>
+
+                        <p>
+                            The IT department will be performing scheduled
+                            maintenance on the corporate document management
+                            platform. Employees may experience intermittent
+                            service disruptions while backend indexing services
+                            are migrated to the new infrastructure.
+                        </p>
+
+                        <div class="meta">
+                            November 14, 2026 · Information Technology
+                        </div>
+
+                        <div class="author">
+                            <div class="avatar">MR</div>
+                            <div class="author-info">
+                                <strong>Michael Reynolds</strong>
+                                <small>IT Operations Manager</small>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="news-card">
+                        <span class="category">Human Resources</span>
+
+                        <h3>
+                            Annual Employee Performance Reviews Begin December 1
+                        </h3>
+
+                        <p>
+                            Human Resources will begin the annual performance
+                            review cycle next month. Department managers are
+                            expected to complete their evaluations before the
+                            end of the quarter. Employees can access review
+                            documentation through the internal HR portal.
+                        </p>
+
+                        <div class="meta">
+                            November 12, 2026 · Human Resources
+                        </div>
+
+                        <div class="author">
+                            <div class="avatar">JL</div>
+                            <div class="author-info">
+                                <strong>Jennifer Lewis</strong>
+                                <small>Human Resources Director</small>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="news-card">
+                        <span class="category">Security Notice</span>
+
+                        <h3>
+                            Updated Internal Access Policies for Remote
+                            Employees
+                        </h3>
+
+                        <p>
+                            The Information Security Division has announced
+                            updated remote access policies. All employees
+                            accessing internal resources outside corporate
+                            offices must verify their devices and complete the
+                            updated authentication process.
+                        </p>
+
+                        <div class="meta">
+                            November 9, 2026 · Information Security
+                        </div>
+
+                        <div class="author">
+                            <div class="avatar">DW</div>
+                            <div class="author-info">
+                                <strong>David Walker</strong>
+                                <small
+                                    >Chief Information Security Officer</small
+                                >
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="news-card">
+                        <span class="category">Operations</span>
+
+                        <h3>Regional Office Network Consolidation Completed</h3>
+
+                        <p>
+                            The network consolidation project has reached
+                            completion across three regional offices. The
+                            transition establishes a centralized infrastructure
+                            for internal communications and departmental
+                            resource sharing.
+                        </p>
+
+                        <div class="meta">
+                            November 5, 2026 · Operations Division
+                        </div>
+
+                        <div class="author">
+                            <div class="avatar">TB</div>
+                            <div class="author-info">
+                                <strong>Thomas Bennett</strong>
+                                <small>Director of Operations</small>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+
+                <aside>
+                    <div class="sidebar-card">
+                        <h3>Company Announcements</h3>
+
+                        <div class="announcement">
+                            <strong>Q4 Town Hall Meeting</strong>
+                            <small>November 25 · Main Conference Center</small>
+                        </div>
+
+                        <div class="announcement">
+                            <strong>Holiday Office Schedule</strong>
+                            <small>December 1 · Human Resources</small>
+                        </div>
+
+                        <div class="announcement">
+                            <strong>System Maintenance Window</strong>
+                            <small>November 21 · 11:00 PM CST</small>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-card">
+                        <h3>Corporate Departments</h3>
+
+                        <div class="announcement">
+                            <strong>Information Technology</strong>
+                            <small>Infrastructure & Systems</small>
+                        </div>
+
+                        <div class="announcement">
+                            <strong>Information Security</strong>
+                            <small>Risk & Compliance</small>
+                        </div>
+
+                        <div class="announcement">
+                            <strong>Human Resources</strong>
+                            <small>People & Administration</small>
+                        </div>
+
+                        <div class="announcement">
+                            <strong>Operations</strong>
+                            <small>Business Operations</small>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-card">
+                        <h3>Communications Office</h3>
+                        <p
+                            style="
+                                font-size: 13px;
+                                color: #68778a;
+                                line-height: 1.7;
+                            "
+                        >
+                            For company announcements, internal news
+                            submissions, or communications inquiries, contact
+                            Corporate Communications.
+                        </p>
+                        <strong style="font-size: 13px">
+                            communications@sombra.internal
+                        </strong>
+                    </div>
+                </aside>
+            </div>
+        </main>
+
+        <footer>
+            © 2026 Sombra Corporation · Internal Use Only
+            <br /><br />
+            Corporate Communications Division
+        </footer>
+    </body>
+</html>

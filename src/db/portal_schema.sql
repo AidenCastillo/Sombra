@@ -122,36 +122,3 @@ CREATE INDEX IF NOT EXISTS idx_audit_events_time
 CREATE INDEX IF NOT EXISTS idx_sessions_expiry
     ON sessions(expires_at);
 
--- CTF teams
-CREATE TABLE IF NOT EXISTS ctf_teams (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    team_name TEXT NOT NULL UNIQUE COLLATE NOCASE,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- Every flag submission, including incorrect attempts
-CREATE TABLE IF NOT EXISTS ctf_attempts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    team_id INTEGER NOT NULL,
-    challenge_id TEXT NOT NULL,
-    is_correct INTEGER NOT NULL DEFAULT 0,
-    submitted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (team_id) REFERENCES ctf_teams(id)
-);
-
--- Successfully completed challenges
-CREATE TABLE IF NOT EXISTS ctf_solves (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    team_id INTEGER NOT NULL,
-    challenge_id TEXT NOT NULL,
-    solved_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (team_id) REFERENCES ctf_teams(id),
-    UNIQUE (team_id, challenge_id)
-);
-
-CREATE INDEX IF NOT EXISTS idx_ctf_solves_team
-ON ctf_solves(team_id);
-
-CREATE INDEX IF NOT EXISTS idx_ctf_attempts_team
-ON ctf_attempts(team_id);

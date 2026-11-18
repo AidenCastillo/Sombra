@@ -13,7 +13,8 @@ services:
             NODE_ENV: production
             PORT: 3000
             HOST: 0.0.0.0
-            DB_PATH: /app/data/sombra.sqlite
+            PORTAL_DB_PATH: /app/data/portal.sqlite
+            CTF_DB_PATH: /app/data/ctf.sqlite
 
         volumes:
             - sombra-data:/app/data

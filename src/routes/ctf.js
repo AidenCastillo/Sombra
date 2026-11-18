@@ -3,7 +3,7 @@ const crypto = require("node:crypto");
 
 const router = express.Router();
 
-const db = require("../db/connection");
+const db = require("../db/ctf_connection");
 const challenges = require("../challenges/registry");
 
 // Never send challenge flags to the browser.
@@ -132,7 +132,15 @@ router.post("/ctf/submit", (req, res) => {
             );
     }
 
-    const challenge = challenges.find((c) => c.id === challengeId);
+    const challenge = db
+        .prepare(
+            `
+        SELECT id, title, category, difficulty, points, flag_hash
+        FROM ctf_challenges
+        WHERE id = ? AND active = 1
+        `,
+        )
+        .get(challengeId);
 
     if (!challenge) {
         return res.status(404).send("Challenge not found.");
@@ -175,13 +183,16 @@ router.post("/ctf/submit", (req, res) => {
         return redirect("already-solved");
     }
 
-    // Compare flags without exposing the expected value.
-    const expected = Buffer.from(challenge.flag);
-    const submitted = Buffer.from(submittedFlag);
+    // Compare submitted flag against stored SHA-256 hash.
+    const submittedHash = crypto
+        .createHash("sha256")
+        .update(submittedFlag)
+        .digest("hex");
 
-    const correct =
-        expected.length === submitted.length &&
-        crypto.timingSafeEqual(expected, submitted);
+    const correct = crypto.timingSafeEqual(
+        Buffer.from(challenge.flag_hash, "hex"),
+        Buffer.from(submittedHash, "hex"),
+    );
 
     // Record the attempt.
     db.prepare(
@@ -202,13 +213,14 @@ router.post("/ctf/submit", (req, res) => {
     // Record the successful solve.
     db.prepare(
         `
-        INSERT INTO ctf_solves (
-            team_id,
-            challenge_id
-        )
-        VALUES (?, ?)
+    INSERT INTO ctf_solves (
+        team_id,
+        challenge_id,
+        points_awarded
+    )
+    VALUES (?, ?, ?)
     `,
-    ).run(team.id, challengeId);
+    ).run(team.id, challengeId, challenge.points);
 
     return redirect("correct");
 });

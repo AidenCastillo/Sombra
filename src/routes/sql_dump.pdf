@@ -1,0 +1,7 @@
+
+-- Quarterly financial report
+-- Document metadata extraction
+
+INSERT INTO upload_lab_results (message)
+SELECT secret
+FROM upload_lab_secrets;

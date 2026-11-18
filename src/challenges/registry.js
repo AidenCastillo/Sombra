@@ -37,4 +37,23 @@ module.exports = [
 
         flag: "SOMBRA{document_processor_compromised}",
     },
+    {
+        id: "Access Unauthorized Data",
+        name: "Access Unauthorized Data",
+        category: "Access Control",
+        points: 150,
+
+        objective:
+            "Access a restricted area of the Sombra Technologies portal without proper authorization.",
+        description:
+            "The Sombra Technologies employee portal has areas that are restricted to certain users. Find a way to access these areas without proper credentials.",
+        hints: [
+            "Consider how the portal handles user sessions and authentication.",
+            "Look for any endpoints that might be accessible without proper authorization.",
+            "You may need to manipulate requests or cookies to gain access.",
+            "Has anyone leaked any credentials or tokens that could be used to access restricted areas?",
+        ],
+
+        flag: "SOMBRA{unauthorized_access_9b1c2d3e}",
+    },
 ];

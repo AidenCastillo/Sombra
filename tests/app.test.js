@@ -53,5 +53,5 @@ test("Archived report contains the flag", async () => {
     assert.match(response.text, /SOMBRA\{backup_discovered_7f3a91c2\}/);
 
     assert.match(response.text, /svc_archive/);
-    assert.match(response.text, /BT-4930/);
+    assert.match(response.text, /ST-4930/);
 });

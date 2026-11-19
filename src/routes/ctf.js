@@ -30,6 +30,9 @@ function getGamemasterState() {
         banner: state.banner || "",
         incidentMode: state.incident_mode === "1",
         watchMode: state.watch_mode === "1",
+        handicapMode: state.handicap_mode === "1",
+        freezeMode: state.freeze_mode === "1",
+        showRoutes: state.show_routes === "1",
     };
 }
 
@@ -40,6 +43,7 @@ function getLeaderboard() {
         SELECT
             t.team_name,
             s.challenge_id,
+            s.points_awarded,
             s.solved_at
         FROM ctf_teams t
         LEFT JOIN ctf_solves s ON s.team_id = t.id
@@ -66,7 +70,7 @@ function getLeaderboard() {
 
         if (!challenge) continue;
 
-        score.points += challenge.points;
+        score.points += row.points_awarded || challenge.points;
         score.solved += 1;
 
         if (!score.lastSolved || row.solved_at < score.lastSolved) {
@@ -111,11 +115,47 @@ function getTeamState(teamName) {
     };
 }
 
+const HIDDEN_PREFIXES = ["/gamemaster", "/ctf"];
+
+function getVisibleRoutes(app) {
+    let root;
+    try {
+        root = app.router;
+    } catch {}
+    root = root || app._router;
+    if (!root || !root.stack) return [];
+
+    const found = [];
+    (function walk(stack, prefix = "") {
+        for (const layer of stack) {
+            if (layer.route) {
+                found.push({
+                    path: prefix + layer.route.path,
+                    methods: Object.keys(layer.route.methods).map((m) =>
+                        m.toUpperCase(),
+                    ),
+                });
+            } else if (layer.handle && layer.handle.stack) {
+                walk(layer.handle.stack, prefix);
+            }
+        }
+    })(root.stack);
+
+    return found
+        .filter(
+            (r) =>
+                typeof r.path === "string" &&
+                !HIDDEN_PREFIXES.some((p) => r.path.startsWith(p)),
+        )
+        .sort((a, b) => a.path.localeCompare(b.path));
+}
+
 // GET /ctf
 router.get("/ctf", (req, res) => {
     const teamName = String(req.query.team || "").trim();
     const teamState = getTeamState(teamName);
     const leaderboard = getLeaderboard();
+    const gamemaster = getGamemasterState();
 
     res.render("ctf", {
         challenges: publicChallenges(),
@@ -124,7 +164,8 @@ router.get("/ctf", (req, res) => {
         teamScore: teamState.teamScore,
         solvedIds: teamState.solvedIds,
         status: req.query.status || null,
-        gamemaster: getGamemasterState(),
+        gamemaster: gamemaster,
+        routes: gamemaster.showRoutes ? getVisibleRoutes(req.app) : [],
     });
 });
 
@@ -133,13 +174,16 @@ router.get("/ctf/state", (req, res) => {
     const teamName = String(req.query.team || "").trim();
     const teamState = getTeamState(teamName);
 
+    const gamemaster = getGamemasterState();
+
     res.json({
         challenges: publicChallenges(),
         leaderboard: getLeaderboard().slice(0, 10),
         teamName,
         teamScore: teamState.teamScore,
         solvedIds: teamState.solvedIds,
-        gamemaster: getGamemasterState(),
+        gamemaster,
+        routes: gamemaster.showRoutes ? getVisibleRoutes(req.app) : [],
     });
 });
 
@@ -161,6 +205,9 @@ router.post("/ctf/submit", (req, res) => {
         teamName.length > 32 ||
         !/^[a-zA-Z0-9 _-]+$/.test(teamName)
     ) {
+        if (getGamemasterState().freezeMode) {
+            return redirect("frozen");
+        }
         return res
             .status(400)
             .send(
@@ -252,6 +299,9 @@ router.post("/ctf/submit", (req, res) => {
         return redirect("incorrect");
     }
 
+    const awarded = getGamemasterState().handicapMode
+        ? Math.floor(challenge.points / 2)
+        : challenge.points;
     // Record the successful solve.
     db.prepare(
         `
@@ -262,7 +312,7 @@ router.post("/ctf/submit", (req, res) => {
     )
     VALUES (?, ?, ?)
     `,
-    ).run(team.id, challengeId, challenge.points);
+    ).run(team.id, challengeId, awarded);
 
     return redirect("correct");
 });

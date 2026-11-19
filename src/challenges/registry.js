@@ -24,7 +24,7 @@ module.exports = [
         id: "document-upload",
         name: "Document Upload",
         category: "File Upload",
-        points: 200,
+        points: 300,
 
         objective:
             "Upload a document to the Sombra Technologies portal and retrieve a secret message.",
@@ -114,7 +114,7 @@ module.exports = [
         id: "Cookie Manipulation",
         name: "Cookie Manipulation",
         category: "Web Security",
-        points: 100,
+        points: 150,
         objective:
             "Manipulate cookies to gain unauthorized access to a restricted area of the Sombra Technologies portal.",
         description:
@@ -125,13 +125,13 @@ module.exports = [
             "You may need to modify the cookies in your browser or use a tool to intercept and manipulate the requests.",
         ],
         flag: "SOMBRA{cookie_manipulation_1p2q3r4s}",
-        active: 0,
+        active: 1,
     },
     {
         id: "HTML Inspection",
         name: "HTML Inspection",
         category: "Web Security",
-        points: 150,
+        points: 100,
         objective:
             "Inspect the HTML source code of the Sombra Technologies portal to find hidden information.",
         description:

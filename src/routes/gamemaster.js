@@ -75,6 +75,9 @@ function getState() {
         banner: state.banner || "",
         incidentMode: state.incident_mode === "1",
         watchMode: state.watch_mode === "1",
+        handicapMode: state.handicap_mode === "1",
+        freezeMode: state.freeze_mode === "1",
+        showRoutes: state.show_routes === "1",
     };
 }
 
@@ -219,6 +222,13 @@ router.post("/gamemaster/team", requireGamemaster, (req, res) => {
         transaction();
     }
 
+    res.redirect("/gamemaster");
+});
+
+router.post("/gamemaster/game_control", requireGamemaster, (req, res) => {
+    setState("handicap_mode", req.body.handicapMode === "1" ? "1" : "0");
+    setState("freeze_mode", req.body.freezeMode === "1" ? "1" : "0");
+    setState("show_routes", req.body.showRoutes === "1" ? "1" : "0");
     res.redirect("/gamemaster");
 });
 

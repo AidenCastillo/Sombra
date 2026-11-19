@@ -89,12 +89,17 @@ router.post("/login", (req, res) => {
         return res.redirect("/employee");
     }
 
-    if (username !== PLAYER_USERNAME || password !== PLAYER_PASSWORD) {
+    if (username === PLAYER_USERNAME && password === PLAYER_PASSWORD) {
         res.setHeader(
             "Set-Cookie",
             "sombra_session=user%3Davery.patel%26role%3Dbasic; Path=/; SameSite=Lax",
         );
         return res.redirect("/employee");
+    }
+
+    // Troll: If the player logs in with the correct credentials, redirect them to a fake error page.
+    if (username === "james.wilson" && password === "password") {
+        return res.redirect("/lol");
     }
 
     return res.redirect("/login?error=1");
@@ -106,6 +111,27 @@ router.post("/logout", (req, res) => {
         "sombra_session=; Path=/; SameSite=Lax; Max-Age=0",
     );
     res.redirect("/");
+});
+
+router.get("/lol", (req, res) => {
+    res.clearCookie("sombra_session", {
+        path: "/",
+        sameSite: "lax",
+    });
+
+    res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta http-equiv="refresh" content="0; url=https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+      </head>
+      <body>
+        <script>
+          window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+        </script>
+      </body>
+    </html>
+  `);
 });
 
 // Employee portal.

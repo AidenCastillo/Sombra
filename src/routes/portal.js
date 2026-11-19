@@ -50,6 +50,7 @@ function readPortalSession(req) {
 
     return {
         raw: value,
+        username,
         role: roleMatch ? roleMatch[1] : "basic",
         authenticated: authed_users.some((user) =>
             value.includes(`user=${user}`),
@@ -156,9 +157,53 @@ router.get("/employee", requirePortalLogin, (req, res) => {
         )
         .get().count;
 
+    const currentUser = db
+        .prepare("SELECT id FROM users WHERE username = ?")
+        .get(req.portalSession.username);
+
     res.render("dashboard", {
         departments,
         employeeCount,
+        role: req.portalSession.role,
+        profileId: currentUser ? currentUser.id : null,
+    });
+});
+
+// Employee profile pages
+// Navigate to /employee/profile?id=EMPLOYEE_NO to view a specific employee's profile.
+router.get("/employee/profile", requirePortalLogin, (req, res) => {
+    const employeeId = Number.parseInt(req.query.id, 10);
+
+    if (!Number.isInteger(employeeId)) {
+        return res.status(400).send("Missing employee ID.");
+    }
+
+    const employee = db
+        .prepare(
+            `
+    SELECT
+        users.id,
+        users.employee_no,
+        users.first_name,
+        users.last_name,
+        users.title,
+        users.email,
+        users.office,
+        users.notes,
+        departments.name AS department
+    FROM users
+    JOIN departments ON users.department_id = departments.id
+    WHERE users.id = ?
+`,
+        )
+        .get(employeeId);
+
+    if (!employee) {
+        return res.status(404).send("Employee not found.");
+    }
+
+    res.render("profile", {
+        employee,
         role: req.portalSession.role,
     });
 });

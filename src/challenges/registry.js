@@ -144,4 +144,20 @@ module.exports = [
         flag: "SOMBRA{html_inspection_2t3u4v5w}",
         active: 0,
     },
+    {
+        id: "IDs Aren't Access Control",
+        name: "IDs Aren't Access Control",
+        category: "Access Control",
+        points: 200,
+        objective: "Access another user's profile by manipulating the URL.",
+        description:
+            "The Sombra Technologies employee portal allows users to view their own profiles. Your task is to manipulate the URL to access another user's profile",
+        hints: [
+            "The profile page may use a query parameter to identify which user's profile to display.",
+            "Try changing the value of the query parameter to see if you can access another user's profile.",
+            "Be cautious and ensure you are not violating any laws or regulations while performing this task.",
+        ],
+        flag: "SOMBRA{profile_ids_arent_access_control_9dm#bcu*}",
+        active: 1,
+    },
 ];

@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
 
     office TEXT,
     phone_extension TEXT,
+    notes TEXT,
 
     active INTEGER NOT NULL DEFAULT 1,
 

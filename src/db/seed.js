@@ -24,19 +24,11 @@ function seed(db) {
     }
 
     const insertUser = db.prepare(`
-        INSERT INTO users (
-            employee_no,
-            username,
-            password_hash,
-            first_name,
-            last_name,
-            email,
-            title,
-            department_id,
-            role,
-            office
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO users (
+        employee_no, username, password_hash, first_name, last_name,
+        email, title, department_id, role, office, notes
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     // Replace this with bcrypt hashes when we implement login.
@@ -55,6 +47,7 @@ function seed(db) {
             1,
             "admin",
             "Austin HQ",
+            "Board access recovery phrase stored with Legal. SOMBRA{profile_ids_arent_access_control_9dm#bcu*}",
         ],
         [
             "BT-0042",
@@ -67,6 +60,7 @@ function seed(db) {
             2,
             "it",
             "Austin HQ",
+            "TODO: stop storing role and username in the session cookie before launch.",
         ],
         [
             "BT-0088",
@@ -79,6 +73,7 @@ function seed(db) {
             3,
             "employee",
             "San Antonio",
+            "Onboarding lead for Q1 hires. Remind new hires to review the Acceptable Use Policy.",
         ],
         [
             "BT-0103",
@@ -91,6 +86,7 @@ function seed(db) {
             4,
             "employee",
             "Austin HQ",
+            "Quarterly budget review due Friday. Vendor invoices are filed under Finance.",
         ],
         [
             "BT-0126",
@@ -103,6 +99,46 @@ function seed(db) {
             5,
             "employee",
             "Remote",
+            "Working remotely. Document intake service still needs hardening.",
+        ],
+        [
+            "BT-0131",
+            "dana.whitfield",
+            placeholderHash,
+            "Dana",
+            "Whitfield",
+            "dana.whitfield@sombra.example",
+            "Security Analyst",
+            2,
+            "it",
+            "Austin HQ",
+            "Reviewing the document upload service. Do not expose externally.",
+        ],
+        [
+            "BT-0144",
+            "sam.okafor",
+            placeholderHash,
+            "Sam",
+            "Okafor",
+            "sam.okafor@sombra.example",
+            "Executive Assistant",
+            1,
+            "employee",
+            "Austin HQ",
+            "Manages Morgan's calendar. Ask IT for admin portal access requests.",
+        ],
+        [
+            "BT-0150",
+            "amanda.smith",
+            placeholderHash,
+            "Amanda",
+            "Smith",
+            "amanda.smith@sombra.example",
+            "Operations Manager",
+            1,
+            "employee",
+            "Austin HQ",
+            "...",
         ],
     ];
 

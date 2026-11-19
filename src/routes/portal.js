@@ -41,11 +41,19 @@ function readPortalSession(req) {
     const roleMatch = value.match(
         /(?:^|[;,&])role[:=](basic|admin)(?:[;,&]|$)/,
     );
+    const userMatch = value.match(
+        /(?:^|[;,&])user[:=]([a-zA-Z0-9._-]+)(?:[;,&]|$)/,
+    );
+    const username = userMatch ? userMatch[1] : null;
+
+    const authed_users = ["avery.patel", "amanda.smith"];
 
     return {
         raw: value,
         role: roleMatch ? roleMatch[1] : "basic",
-        authenticated: value.includes("user=avery.patel"),
+        authenticated: authed_users.some((user) =>
+            value.includes(`user=${user}`),
+        ),
     };
 }
 
@@ -73,15 +81,23 @@ router.post("/login", (req, res) => {
     const username = String(req.body.username || "").trim();
     const password = String(req.body.password || "");
 
-    if (username !== PLAYER_USERNAME || password !== PLAYER_PASSWORD) {
-        return res.redirect("/login?error=1");
+    if (username === "amanda.smith" && password === "amandaLOVESdogs") {
+        res.setHeader(
+            "Set-Cookie",
+            "sombra_session=user%3Damanda.smith%26role%3Deditor; Path=/; SameSite=Lax",
+        );
+        return res.redirect("/employee");
     }
 
-    res.setHeader(
-        "Set-Cookie",
-        "sombra_session=user%3Davery.patel%26role%3Dbasic; Path=/; SameSite=Lax",
-    );
-    res.redirect("/employee");
+    if (username !== PLAYER_USERNAME || password !== PLAYER_PASSWORD) {
+        res.setHeader(
+            "Set-Cookie",
+            "sombra_session=user%3Davery.patel%26role%3Dbasic; Path=/; SameSite=Lax",
+        );
+        return res.redirect("/employee");
+    }
+
+    return res.redirect("/login?error=1");
 });
 
 router.post("/logout", (req, res) => {
@@ -164,7 +180,7 @@ router.get("/documents/upload", (req, res) => {
     res.render("document-upload");
 });
 
-router.get("/news", (req, res) => {
+router.get("/employee/news", (req, res) => {
     res.render("news");
 });
 

@@ -18,6 +18,7 @@ module.exports = [
         ],
 
         flag: "SOMBRA{backup_discovered_7f3a91c2}",
+        active: 0,
     },
     {
         id: "document-upload",
@@ -36,6 +37,7 @@ module.exports = [
         ],
 
         flag: "SOMBRA{document_processor_compromised}",
+        active: 1,
     },
     {
         id: "Access Unauthorized Data",
@@ -55,5 +57,91 @@ module.exports = [
         ],
 
         flag: "SOMBRA{unauthorized_access_9b1c2d3e}",
+        active: 0,
+    },
+    {
+        id: "Decrypt Sensitive Information",
+        name: "Decrypt Sensitive Information",
+        category: "Cryptography",
+        points: 250,
+        objective:
+            "Decrypt a piece of sensitive information that has been encrypted using a weak algorithm.",
+        description:
+            "You have obtained a piece of sensitive information that has been encrypted using a weak algorithm. Your task is to decrypt it and retrieve the original message.",
+        hints: [
+            "Look for any known vulnerabilities in the encryption algorithm.",
+            "Consider using a brute force approach to try different keys.",
+            "Check if there are any patterns or structures in the encrypted data that might provide clues.",
+        ],
+        flag: "SOMBRA{decrypted_sensitive_info_4d5e6f7g}",
+        active: 0,
+    },
+    {
+        id: "Utilize Password Hash",
+        name: "Utilize Password Hash",
+        category: "Password Cracking",
+        points: 300,
+        objective:
+            "You have obtained a password hash. Your task is to figure out how to utilize it to gain access to a system or account.",
+        description:
+            "You have obtained a password hash from the Sombra Technologies system. Your goal is to use this hash to gain unauthorized access to a user's account or system.",
+        hints: [
+            "Does the HTTPS endpoint accept the hash directly for authentication?",
+            "Consider if the system is vulnerable to any specific attacks that could allow you to use the hash.",
+            "You may need to research common techniques for exploiting password hashes.",
+        ],
+        flag: "SOMBRA{utilized_password_hash_8h9i0j1k}",
+        active: 0,
+    },
+    {
+        id: "Wireshark Capture Analysis",
+        name: "Wireshark Capture Analysis",
+        category: "Network Analysis",
+        points: 350,
+        objective:
+            "Analyze a provided Wireshark capture file to extract sensitive information.",
+        description:
+            "You have obtained a Wireshark capture file that contains network traffic. Your task is to analyze the traffic and extract any sensitive information that may be present.",
+        hints: [
+            "Look for any HTTP requests or responses that might contain sensitive data.",
+            "Check for any encrypted traffic that might be vulnerable to analysis.",
+            "Pay attention to any communication between the client and server that might reveal information about the system or its users.",
+        ],
+        flag: "SOMBRA{wireshark_analysis_5l6m7n8o}",
+        active: 0,
+    },
+    {
+        id: "Cookie Manipulation",
+        name: "Cookie Manipulation",
+        category: "Web Security",
+        points: 100,
+        objective:
+            "Manipulate cookies to gain unauthorized access to a restricted area of the Sombra Technologies portal.",
+        description:
+            "The Sombra Technologies employee portal uses cookies for session management. Your task is to manipulate the cookies in order to gain access to a restricted area of the portal without proper authorization.",
+        hints: [
+            "Inspect the cookies stored in your browser and look for any that might be related to authentication or session management.",
+            "Consider how the portal might validate the cookies and what information they might contain.",
+            "You may need to modify the cookies in your browser or use a tool to intercept and manipulate the requests.",
+        ],
+        flag: "SOMBRA{cookie_manipulation_1p2q3r4s}",
+        active: 0,
+    },
+    {
+        id: "HTML Inspection",
+        name: "HTML Inspection",
+        category: "Web Security",
+        points: 150,
+        objective:
+            "Inspect the HTML source code of the Sombra Technologies portal to find hidden information.",
+        description:
+            "The Sombra Technologies employee portal may contain hidden information in its HTML source code. Your task is to inspect the source code and find any hidden information that could be useful.",
+        hints: [
+            "Use your browser's developer tools to inspect the HTML source code of the portal.",
+            "Look for any comments, hidden elements, or scripts that might contain sensitive information.",
+            "Pay attention to any inline JavaScript or CSS that might reveal information about the portal's functionality.",
+        ],
+        flag: "SOMBRA{html_inspection_2t3u4v5w}",
+        active: 0,
     },
 ];

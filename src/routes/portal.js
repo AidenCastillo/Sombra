@@ -13,8 +13,87 @@ const upload = multer({
 
 const router = express.Router();
 
-// Corporate landing page.
+// function getGamemasterState() {
+//     const rows = db
+//         .prepare("SELECT key, value FROM portal_gamemaster_state")
+//         .all();
+
+//     const state = Object.fromEntries(rows.map((row) => [row.key, row.value]));
+//     return {
+//         banner: state.portal.banner || "",
+//         incidentMode: state.portal.incident_mode === "1",
+//         watchMode: state.portal.watch_mode === "1",
+//     };
+// }
+
+const PLAYER_USERNAME = "avery.patel";
+const PLAYER_PASSWORD = "Sombra2026!";
+
+function readPortalSession(req) {
+    const cookie = (req.headers.cookie || "")
+        .split(";")
+        .map((part) => part.trim())
+        .find((part) => part.startsWith("sombra_session="));
+
+    if (!cookie) return null;
+
+    const value = decodeURIComponent(cookie.slice("sombra_session=".length));
+    const roleMatch = value.match(
+        /(?:^|[;,&])role[:=](basic|admin)(?:[;,&]|$)/,
+    );
+
+    return {
+        raw: value,
+        role: roleMatch ? roleMatch[1] : "basic",
+        authenticated: value.includes("user=avery.patel"),
+    };
+}
+
+function requirePortalLogin(req, res, next) {
+    const session = readPortalSession(req);
+
+    if (!session || !session.authenticated) {
+        return res.redirect("/login");
+    }
+
+    req.portalSession = session;
+    next();
+}
+
+// Public Sombra Technologies website.
 router.get("/", (req, res) => {
+    res.render("public");
+});
+
+router.get("/login", (req, res) => {
+    res.render("login", { error: req.query.error === "1" });
+});
+
+router.post("/login", (req, res) => {
+    const username = String(req.body.username || "").trim();
+    const password = String(req.body.password || "");
+
+    if (username !== PLAYER_USERNAME || password !== PLAYER_PASSWORD) {
+        return res.redirect("/login?error=1");
+    }
+
+    res.setHeader(
+        "Set-Cookie",
+        "sombra_session=user%3Davery.patel%26role%3Dbasic; Path=/; SameSite=Lax",
+    );
+    res.redirect("/employee");
+});
+
+router.post("/logout", (req, res) => {
+    res.setHeader(
+        "Set-Cookie",
+        "sombra_session=; Path=/; SameSite=Lax; Max-Age=0",
+    );
+    res.redirect("/");
+});
+
+// Employee portal.
+router.get("/employee", requirePortalLogin, (req, res) => {
     const departments = db
         .prepare(
             `
@@ -38,7 +117,19 @@ router.get("/", (req, res) => {
     res.render("dashboard", {
         departments,
         employeeCount,
+        role: req.portalSession.role,
     });
+});
+
+router.get("/employee/admin", requirePortalLogin, (req, res) => {
+    if (req.portalSession.role !== "admin") {
+        return res.status(403).render("restricted", {
+            requiredRole: "admin",
+            currentRole: req.portalSession.role,
+        });
+    }
+
+    res.render("admin");
 });
 
 // Employee directory.

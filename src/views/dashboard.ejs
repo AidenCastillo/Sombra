@@ -18,6 +18,12 @@
     <header>
         <h2>SOMBRA TECHNOLOGIES</h2>
         <small>EMPLOYEE WORKSPACE</small>
+        <div style="float:right;margin-top:-42px;text-align:right">
+            <small>SESSION ROLE: <strong><%= role %></strong></small>
+            <form method="POST" action="/logout" style="margin-top:8px">
+                <button type="submit" style="border:1px solid #a8bdd4;background:transparent;color:white;padding:6px 10px">Log out</button>
+            </form>
+        </div>
     </header>
 
     <main>
@@ -68,9 +74,28 @@
             <a href="/api/documents">Company Documents</a>
         </p>
 
+        <p>
+            <a href="/employee/admin">Administration Console</a>
+        </p>
+
+        <hr>
+
+        <small>
+            Browser training state:
+            <code id="browser-role">Loading...</code>
+        </small>
+
     </main>
 
 </div>
+
+<script>
+    const storedAuth = JSON.parse(
+        localStorage.getItem("sombra_auth") || '{"role":"basic"}'
+    );
+    document.getElementById("browser-role").textContent =
+        "role:" + (storedAuth.role || "basic");
+</script>
 
 </body>
 </html>

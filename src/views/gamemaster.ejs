@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blue Team | Game Master</title>
+    <link rel="stylesheet" href="/css/gamemaster.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="console-brand">
+            <div class="brand-mark">BT</div>
+            <div>
+                <strong>BLUE TEAM</strong>
+                <small>GAME MASTER</small>
+            </div>
+        </div>
+
+        <nav>
+            <a class="active" href="#overview">Overview</a>
+            <a href="#teams">Teams</a>
+            <a href="#challenges">Challenges</a>
+            <a href="#broadcast">Broadcast</a>
+        </nav>
+
+        <div class="operator-status">
+            <span class="status-dot"></span>
+            <div>
+                <strong>OPERATOR ACTIVE</strong>
+                <small>SESSION SECURED</small>
+            </div>
+        </div>
+    </aside>
+
+    <main class="console" id="overview">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">OPERATION COMMAND</p>
+                <h1>Exercise Control</h1>
+            </div>
+            <form method="POST" action="/gamemaster/logout">
+                <button class="logout-button" type="submit">Terminate session</button>
+            </form>
+        </header>
+
+        <section class="status-grid">
+            <article class="metric">
+                <small>REGISTERED TEAMS</small>
+                <strong><%= teams.length %></strong>
+            </article>
+            <article class="metric">
+                <small>CHALLENGES</small>
+                <strong><%= challenges.filter(c => c.active).length %>/<%= challenges.length %></strong>
+            </article>
+            <article class="metric">
+                <small>BLUE TEAM STATE</small>
+                <strong class="metric-live"><%= state.incidentMode ? "INCIDENT" : "STANDBY" %></strong>
+            </article>
+        </section>
+
+        <section class="console-grid">
+            <article class="panel" id="broadcast">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">LIVE INFLUENCE</p>
+                        <h2>Portal Presence</h2>
+                    </div>
+                    <span class="live-tag">LIVE</span>
+                </div>
+
+                <form method="POST" action="/gamemaster/mode" class="mode-form">
+                    <label class="toggle-row">
+                        <span>
+                            <strong>Incident response mode</strong>
+                            <small>Display a blue-team status banner</small>
+                        </span>
+                        <input type="checkbox" name="incidentMode" value="1" <%= state.incidentMode ? "checked" : "" %>>
+                    </label>
+                    <label class="toggle-row">
+                        <span>
+                            <strong>Telemetry indicator</strong>
+                            <small>Make teams feel observed from the corner of the page</small>
+                        </span>
+                        <input type="checkbox" name="watchMode" value="1" <%= state.watchMode ? "checked" : "" %>>
+                    </label>
+                    <button type="submit" class="primary-button">Apply presence state</button>
+                </form>
+
+                <form method="POST" action="/gamemaster/broadcast" class="broadcast-form">
+                    <label for="banner">Public message</label>
+                    <div>
+                        <input id="banner" name="banner" maxlength="200" value="<%= state.banner %>" placeholder="Authorized activity detected...">
+                        <button type="submit">Broadcast</button>
+                    </div>
+                </form>
+            </article>
+
+            <article class="panel" id="challenges">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">OBJECTIVE CONTROL</p>
+                        <h2>Challenge Visibility</h2>
+                    </div>
+                </div>
+                <div class="challenge-list">
+                    <% challenges.forEach(challenge => { %>
+                        <div class="challenge-row">
+                            <div>
+                                <strong><%= challenge.title %></strong>
+                                <small><%= challenge.category %> · <%= challenge.points %> pts</small>
+                            </div>
+                            <form method="POST" action="/gamemaster/challenge">
+                                <input type="hidden" name="challengeId" value="<%= challenge.id %>">
+                                <input type="hidden" name="active" value="<%= challenge.active ? "0" : "1" %>">
+                                <button class="<%= challenge.active ? "active-button" : "inactive-button" %>" type="submit">
+                                    <%= challenge.active ? "Enabled" : "Disabled" %>
+                                </button>
+                            </form>
+                        </div>
+                    <% }) %>
+                </div>
+            </article>
+        </section>
+
+        <section class="console-grid lower-grid">
+            <article class="panel" id="teams">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">PARTICIPANT CONTROL</p>
+                        <h2>Team Roster</h2>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Team</th><th>Score</th><th>State</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            <% teams.forEach(team => { %>
+                                <tr>
+                                    <td><strong><%= team.team_name %></strong></td>
+                                    <td><span class="score"><%= team.points %></span></td>
+                                    <td><span class="<%= team.active ? "team-enabled" : "team-disabled" %>"><%= team.active ? "Active" : "Disabled" %></span></td>
+                                    <td class="team-actions">
+                                        <form method="POST" action="/gamemaster/team">
+                                            <input type="hidden" name="teamId" value="<%= team.id %>">
+                                            <input type="hidden" name="action" value="<%= team.active ? "deactivate" : "activate" %>">
+                                            <button type="submit"><%= team.active ? "Disable" : "Enable" %></button>
+                                        </form>
+                                        <form method="POST" action="/gamemaster/team" onsubmit="return confirm('Reset all scores and attempts for this team?')">
+                                            <input type="hidden" name="teamId" value="<%= team.id %>">
+                                            <input type="hidden" name="action" value="reset">
+                                            <button class="danger-action" type="submit">Reset</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                    <% if (!teams.length) { %><p class="empty-state">No registered teams yet.</p><% } %>
+                </div>
+            </article>
+
+            <article class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">ACTIVITY FEED</p>
+                        <h2>Recent Attempts</h2>
+                    </div>
+                </div>
+                <div class="attempt-list">
+                    <% attempts.forEach(attempt => { %>
+                        <div class="attempt-row">
+                            <span class="<%= attempt.is_correct ? "attempt-ok" : "attempt-bad" %>"></span>
+                            <div>
+                                <strong><%= attempt.team_name %></strong>
+                                <small><%= attempt.challenge_title %></small>
+                            </div>
+                            <time><%= attempt.submitted_at %></time>
+                        </div>
+                    <% }) %>
+                    <% if (!attempts.length) { %><p class="empty-state">No submissions recorded.</p><% } %>
+                </div>
+            </article>
+        </section>
+    </main>
+</body>
+</html>

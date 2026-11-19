@@ -83,3 +83,10 @@ ON ctf_solves(team_id);
 
 CREATE INDEX IF NOT EXISTS idx_ctf_solves_challenge
 ON ctf_solves(challenge_id);
+
+-- Game-master broadcast and event state
+CREATE TABLE IF NOT EXISTS ctf_gamemaster_state (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

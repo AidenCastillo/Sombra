@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blue Team | Authorization</title>
+    <link rel="stylesheet" href="/css/gamemaster.css">
+</head>
+<body class="login-body">
+    <main class="login-shell">
+        <section class="login-panel">
+            <div class="login-mark">
+                <span>BT</span>
+            </div>
+            <p class="eyebrow">SOMBRA / BLUE TEAM</p>
+            <h1>Game Master Console</h1>
+            <p class="login-copy">Restricted operations interface. Authorized operators only.</p>
+
+            <% if (error) { %>
+                <div class="login-error">Authorization rejected.</div>
+            <% } %>
+
+            <form method="POST" action="/gamemaster/login" class="login-form">
+                <label for="password">Operator passphrase</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" autofocus required>
+                <button type="submit">Establish session</button>
+            </form>
+
+            <a class="login-return" href="/ctf">Return to public operations portal</a>
+        </section>
+    </main>
+</body>
+</html>

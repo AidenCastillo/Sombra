@@ -8,7 +8,29 @@ const challenges = require("../challenges/registry");
 
 // Never send challenge flags to the browser.
 function publicChallenges() {
-    return challenges.map(({ flag, ...challenge }) => challenge);
+    const activeIds = new Set(
+        db
+            .prepare("SELECT id FROM ctf_challenges WHERE active = 1")
+            .all()
+            .map((row) => row.id),
+    );
+
+    return challenges
+        .filter((challenge) => activeIds.has(challenge.id))
+        .map(({ flag, ...challenge }) => challenge);
+}
+
+function getGamemasterState() {
+    const rows = db
+        .prepare("SELECT key, value FROM ctf_gamemaster_state")
+        .all();
+
+    const state = Object.fromEntries(rows.map((row) => [row.key, row.value]));
+    return {
+        banner: state.banner || "",
+        incidentMode: state.incident_mode === "1",
+        watchMode: state.watch_mode === "1",
+    };
 }
 
 function getLeaderboard() {
@@ -104,6 +126,7 @@ router.get("/ctf", (req, res) => {
         teamScore: teamScore || null,
         solvedIds,
         status: req.query.status || null,
+        gamemaster: getGamemasterState(),
     });
 });
 
@@ -161,12 +184,18 @@ router.post("/ctf/submit", (req, res) => {
     const team = db
         .prepare(
             `
-        SELECT id, team_name
+        SELECT id, team_name, active
         FROM ctf_teams
         WHERE team_name = ?
     `,
         )
         .get(teamName);
+
+    if (!team.active) {
+        return res
+            .status(403)
+            .send("This team has been disabled by Blue Team.");
+    }
 
     // Check whether this challenge has already been solved.
     const existingSolve = db

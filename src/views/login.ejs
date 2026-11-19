@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Employee Login | Sombra Technologies</title>
+    <link rel="stylesheet" href="/css/public.css">
+</head>
+<body class="login-page">
+    <header class="site-header">
+        <a class="brand" href="/">
+            <span class="brand-mark">S</span>
+            <span>SOMBRA <small>TECHNOLOGIES</small></span>
+        </a>
+        <nav>
+            <a class="login-button" href="/">Public website</a>
+        </nav>
+    </header>
+
+    <main class="login-layout">
+        <section class="login-intro">
+            <p class="eyebrow">EMPLOYEE ACCESS</p>
+            <h1>Welcome back.</h1>
+            <p>Sign in to the Sombra Technologies employee workspace.</p>
+        </section>
+
+        <section class="login-card">
+            <h2>Corporate sign in</h2>
+            <% if (error) { %>
+                <div class="login-error">The username or password was not accepted.</div>
+            <% } %>
+            <form method="POST" action="/login">
+                <label for="username">Username</label>
+                <input id="username" name="username" autocomplete="username" required autofocus>
+
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+                <button type="submit">Sign in</button>
+            </form>
+            <p class="security-note">Protected by Sombra identity services</p>
+        </section>
+    </main>
+
+    <script>
+        // Training-system client state. Inspect, edit, and restore this value
+        // together with the sombra_session cookie during the CTF exercise.
+        localStorage.setItem("sombra_auth", JSON.stringify({
+            user: "avery.patel",
+            role: "basic"
+        }));
+    </script>
+</body>
+</html>

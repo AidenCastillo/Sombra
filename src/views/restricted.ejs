@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Restricted Resource | Sombra</title>
+    <link rel="stylesheet" href="/css/public.css">
+</head>
+<body class="login-page">
+    <main class="login-layout">
+        <section class="login-card restricted-card">
+            <p class="eyebrow">ACCESS CONTROL</p>
+            <h1>Restricted resource</h1>
+            <p>This area requires the <strong><%= requiredRole %></strong> role. Your session role is <strong><%= currentRole %></strong>.</p>
+            <a class="primary-action" href="/employee">Return to employee portal</a>
+        </section>
+    </main>
+</body>
+</html>

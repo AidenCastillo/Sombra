@@ -157,6 +157,34 @@ npm list --depth=0
 | Archived IT Report | http://localhost:3000/backup/it-archive-2024.html |
 | CTF Portal         | http://localhost:3000/ctf                         |
 
+## 6. Public portal and training login
+
+Open `http://localhost:3000/` for the public Sombra website.
+Select **Employee login** to sign in with:
+
+```text
+Username: avery.patel
+Password: Sombra2026!
+```
+
+The employee portal is available at `/employee`. Its intentionally weak
+training session stores a browser cookie:
+
+```text
+sombra_session=user=avery.patel&role=basic
+```
+
+The restricted administration route is `/employee/admin`. Change the cookie
+value from `role=basic` to `role=admin` and revisit that route to test the
+cookie manipulation exercise. The equivalent local-storage test value is:
+
+```javascript
+localStorage.setItem("sombra_auth", JSON.stringify({
+    user: "avery.patel",
+    role: "admin"
+}));
+```
+
 ## 5. Database Management
 
 Sombra currently uses SQLite.

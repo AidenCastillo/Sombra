@@ -364,6 +364,21 @@
 </head>
 
 <body>
+<% if (gamemaster.watchMode) { %>
+<div id="watch-indicator" style="position:fixed;right:16px;bottom:16px;z-index:1000;padding:9px 12px;border:1px solid #2563eb;background:#0a1833;color:#93c5fd;font:700 11px monospace;letter-spacing:1px;border-radius:4px;">
+    BLUE TEAM TELEMETRY ACTIVE
+</div>
+<% } %>
+<% if (gamemaster.incidentMode) { %>
+<div style="position:relative;z-index:999;padding:9px;text-align:center;background:#172554;color:#bfdbfe;border-bottom:1px solid #2563eb;font:700 12px monospace;letter-spacing:1px;">
+    INCIDENT RESPONSE IN PROGRESS — EXERCISE STATUS: ACTIVE
+</div>
+<% } %>
+<% if (gamemaster.banner) { %>
+<div style="padding:12px 24px;text-align:center;background:#1e1b4b;color:#e0e7ff;border-bottom:1px solid #4f46e5;font-size:13px;">
+    <%= gamemaster.banner %>
+</div>
+<% } %>
 
 <nav class="navbar">
     <a href="/" class="brand">SOMBRA</a>

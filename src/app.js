@@ -33,6 +33,7 @@ app.use("/", require("./routes/portal"));
 app.use("/", require("./routes/challenges"));
 
 app.use("/", ctfRoutes);
+app.use("/", require("./routes/gamemaster"));
 
 // 404 handler.
 app.use((req, res) => {

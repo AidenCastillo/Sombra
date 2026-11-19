@@ -342,6 +342,49 @@
             letter-spacing: 1px;
         }
 
+        .footer-label {
+            float: right;
+        }
+
+        #watch-indicator {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            z-index: 1000;
+            padding: 9px 12px;
+            border: 1px solid #2563eb;
+            background: #0a1833;
+            color: #93c5fd;
+            font: 700 11px monospace;
+            letter-spacing: 1px;
+            border-radius: 4px;
+        }
+
+        #incident-banner {
+            position: relative;
+            z-index: 999;
+            padding: 9px;
+            text-align: center;
+            background: #172554;
+            color: #bfdbfe;
+            border-bottom: 1px solid #2563eb;
+            font: 700 12px monospace;
+            letter-spacing: 1px;
+        }
+
+        #broadcast-banner {
+            padding: 12px 24px;
+            text-align: center;
+            background: #1e1b4b;
+            color: #e0e7ff;
+            border-bottom: 1px solid #4f46e5;
+            font-size: 13px;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
         @media (max-width: 750px) {
             .challenge-grid,
             .stats {
@@ -364,21 +407,15 @@
 </head>
 
 <body>
-<% if (gamemaster.watchMode) { %>
-<div id="watch-indicator" style="position:fixed;right:16px;bottom:16px;z-index:1000;padding:9px 12px;border:1px solid #2563eb;background:#0a1833;color:#93c5fd;font:700 11px monospace;letter-spacing:1px;border-radius:4px;">
+<div id="watch-indicator" <%= gamemaster.watchMode ? "" : "hidden" %>>
     BLUE TEAM TELEMETRY ACTIVE
 </div>
-<% } %>
-<% if (gamemaster.incidentMode) { %>
-<div style="position:relative;z-index:999;padding:9px;text-align:center;background:#172554;color:#bfdbfe;border-bottom:1px solid #2563eb;font:700 12px monospace;letter-spacing:1px;">
+<div id="incident-banner" <%= gamemaster.incidentMode ? "" : "hidden" %>>
     INCIDENT RESPONSE IN PROGRESS — EXERCISE STATUS: ACTIVE
 </div>
-<% } %>
-<% if (gamemaster.banner) { %>
-<div style="padding:12px 24px;text-align:center;background:#1e1b4b;color:#e0e7ff;border-bottom:1px solid #4f46e5;font-size:13px;">
+<div id="broadcast-banner" <%= gamemaster.banner ? "" : "hidden" %>>
     <%= gamemaster.banner %>
 </div>
-<% } %>
 
 <nav class="navbar">
     <a href="/" class="brand">SOMBRA</a>
@@ -424,17 +461,17 @@
 
         <div class="stat-card">
             <div class="stat-label">Available Challenges</div>
-            <div class="stat-value"><%= challenges.length %></div>
+            <div id="available-challenges" class="stat-value"><%= challenges.length %></div>
         </div>
 
         <div class="stat-card">
             <div class="stat-label">Challenges Solved</div>
-            <div class="stat-value"><%= solvedIds.length %></div>
+            <div id="solved-challenges" class="stat-value"><%= solvedIds.length %></div>
         </div>
 
         <div class="stat-card">
             <div class="stat-label">Your Score</div>
-            <div class="stat-value">
+            <div id="team-score" class="stat-value">
                 <%= teamScore ? teamScore.points : 0 %>
             </div>
         </div>
@@ -483,7 +520,10 @@
 
             <% const isSolved = solvedIds.includes(challenge.id); %>
 
-            <article class="challenge-card <%= isSolved ? 'solved' : '' %>">
+            <article
+                class="challenge-card <%= isSolved ? 'solved' : '' %>"
+                data-challenge-id="<%= challenge.id %>"
+            >
 
                 <div class="challenge-top">
                     <span class="category">
@@ -591,7 +631,7 @@
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody id="leaderboard-body">
 
                 <% if (leaderboard.length === 0) { %>
 
@@ -620,8 +660,9 @@
 
 <footer>
     SOMBRA TECHNOLOGIES · SECURITY OPERATIONS
-    <span style="float:right">INTERNAL TRAINING ENVIRONMENT</span>
+    <span class="footer-label">INTERNAL TRAINING ENVIRONMENT</span>
 </footer>
 
+<script src="/js/ctf-live.js"></script>
 </body>
 </html>

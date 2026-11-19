@@ -82,50 +82,63 @@ function getLeaderboard() {
     );
 }
 
+function getTeamState(teamName) {
+    if (!teamName) {
+        return { solvedIds: [], teamScore: null };
+    }
+
+    const team = db
+        .prepare("SELECT id FROM ctf_teams WHERE team_name = ?")
+        .get(teamName);
+
+    if (!team) {
+        return { solvedIds: [], teamScore: null };
+    }
+
+    const solvedIds = db
+        .prepare("SELECT challenge_id FROM ctf_solves WHERE team_id = ?")
+        .all(team.id)
+        .map((row) => row.challenge_id);
+    const leaderboard = getLeaderboard();
+
+    return {
+        solvedIds,
+        teamScore:
+            leaderboard.find(
+                (entry) =>
+                    entry.teamName.toLowerCase() === teamName.toLowerCase(),
+            ) || null,
+    };
+}
+
 // GET /ctf
 router.get("/ctf", (req, res) => {
     const teamName = String(req.query.team || "").trim();
-
-    let solvedIds = [];
-
-    if (teamName) {
-        const team = db
-            .prepare(
-                `
-            SELECT id
-            FROM ctf_teams
-            WHERE team_name = ?
-        `,
-            )
-            .get(teamName);
-
-        if (team) {
-            solvedIds = db
-                .prepare(
-                    `
-                SELECT challenge_id
-                FROM ctf_solves
-                WHERE team_id = ?
-            `,
-                )
-                .all(team.id)
-                .map((row) => row.challenge_id);
-        }
-    }
-
+    const teamState = getTeamState(teamName);
     const leaderboard = getLeaderboard();
-
-    const teamScore = leaderboard.find(
-        (entry) => entry.teamName.toLowerCase() === teamName.toLowerCase(),
-    );
 
     res.render("ctf", {
         challenges: publicChallenges(),
         leaderboard: leaderboard.slice(0, 10),
         teamName,
-        teamScore: teamScore || null,
-        solvedIds,
+        teamScore: teamState.teamScore,
+        solvedIds: teamState.solvedIds,
         status: req.query.status || null,
+        gamemaster: getGamemasterState(),
+    });
+});
+
+// GET /ctf/state
+router.get("/ctf/state", (req, res) => {
+    const teamName = String(req.query.team || "").trim();
+    const teamState = getTeamState(teamName);
+
+    res.json({
+        challenges: publicChallenges(),
+        leaderboard: getLeaderboard().slice(0, 10),
+        teamName,
+        teamScore: teamState.teamScore,
+        solvedIds: teamState.solvedIds,
         gamemaster: getGamemasterState(),
     });
 });

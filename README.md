@@ -167,23 +167,18 @@ Username: avery.patel
 Password: Sombra2026!
 ```
 
-The employee portal is available at `/employee`. Its intentionally weak
-training session stores a browser cookie:
+The employee portal is available at `/employee`. It includes server-side
+sessions as the main Phase 1 implementation, plus intentionally legacy CTF
+session behavior:
 
 ```text
 sombra_session=user=avery.patel&role=basic
 ```
 
-The restricted administration route is `/employee/admin`. Change the cookie
-value from `role=basic` to `role=admin` and revisit that route to test the
-cookie manipulation exercise. The equivalent local-storage test value is:
-
-```javascript
-localStorage.setItem("sombra_auth", JSON.stringify({
-    user: "avery.patel",
-    role: "admin"
-}));
-```
+For the Cookie Manipulation challenge, change `role=basic` to `role=admin` and
+visit `/employee/admin`. The admin page contains the challenge flag.
+The profile challenge remains available through `/employee/profile?id=...`;
+the weak password-hash API is available at `/api/passwords`.
 
 ## 5. Database Management
 
@@ -451,17 +446,17 @@ The following is the recommended order for expanding Sombra.
 
 ## Phase 1 — Complete the Corporate Portal
 
-- [ ] Employee login and logout
-- [ ] Secure password hashing with bcrypt or Argon2
-- [ ] Server-side session management
-- [ ] Employee profiles
-- [ ] Department directory
-- [ ] Internal document viewer
-- [ ] Support ticket system
-- [ ] Announcements
-- [ ] User roles and permissions
-- [ ] Admin dashboard
-- [ ] Audit log viewer
+- [x] Employee login and logout
+- [x] Secure password hashing with bcrypt or Argon2
+- [x] Server-side session management
+- [x] Employee profiles
+- [x] Department directory
+- [x] Internal document viewer
+- [x] Support ticket system
+- [x] Announcements
+- [x] User roles and permissions
+- [x] Admin dashboard
+- [x] Audit log viewer
 
 ## Phase 2 — Expand the CTF Platform
 

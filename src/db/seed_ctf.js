@@ -12,14 +12,14 @@ module.exports = function seedCtf(db) {
             flag_hash,
             active
         )
-        VALUES (?, ?, ?, ?, ?, ?, 1)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
             title = excluded.title,
             category = excluded.category,
             difficulty = excluded.difficulty,
             points = excluded.points,
             flag_hash = excluded.flag_hash,
-            active = 1
+            active = excluded.active
     `);
 
     const seedTransaction = db.transaction(() => {
@@ -36,6 +36,7 @@ module.exports = function seedCtf(db) {
                 challenge.difficulty || "Beginner",
                 challenge.points,
                 flagHash,
+                challenge.active === 1 ? 1 : 0,
             );
         }
     });

@@ -89,6 +89,18 @@ CREATE TABLE IF NOT EXISTS audit_events (
     FOREIGN KEY(actor_user_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS announcements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT 'General',
+    author_id INTEGER,
+    published INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY(author_id) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS incident_evidence (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 

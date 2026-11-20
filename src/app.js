@@ -23,6 +23,8 @@ app.use(
     }),
 );
 
+app.use(express.json({ limit: "10kb" }));
+
 // Serve CSS, JavaScript, and images.
 app.use(express.static(path.join(__dirname, "../public")));
 

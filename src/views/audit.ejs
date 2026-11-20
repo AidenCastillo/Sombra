@@ -1,0 +1,5 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Audit Log</title><link rel="stylesheet" href="/css/app.css"></head>
+<body><main><h1>Audit Log</h1><table><thead><tr><th>Time</th><th>Actor</th><th>Event</th><th>Target</th><th>Details</th></tr></thead><tbody>
+<% auditEvents.forEach(event => { %><tr><td><%= event.occurred_at %></td><td><%= event.username || "System" %></td><td><%= event.event_type %></td><td><%= event.target %></td><td><%= event.details || "" %></td></tr><% }) %>
+</tbody></table></main></body></html>

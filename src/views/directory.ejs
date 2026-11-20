@@ -1,0 +1,5 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Employee Directory</title><link rel="stylesheet" href="/css/app.css"></head>
+<body><main><h1>Department Directory</h1><table><thead><tr><th>Employee</th><th>Title</th><th>Department</th><th>Email</th></tr></thead><tbody>
+<% employees.forEach(employee => { %><tr><td><%= employee.first_name %> <%= employee.last_name %></td><td><%= employee.title %></td><td><%= employee.department %></td><td><%= employee.email %></td></tr><% }) %>
+</tbody></table><p><a href="/employee">Back to employee portal</a></p></main></body></html>

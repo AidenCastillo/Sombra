@@ -1,0 +1,5 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Departments</title><link rel="stylesheet" href="/css/app.css"></head>
+<body><main><h1>Departments</h1>
+<% departments.forEach(department => { %><section><h2><%= department.name %></h2><p><%= department.description %></p><p><%= department.employee_count %> active employees</p></section><% }) %>
+<p><a href="/employee">Back to employee portal</a></p></main></body></html>

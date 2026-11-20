@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Support Tickets</title><link rel="stylesheet" href="/css/app.css"></head>
+<body><main><h1>Support Tickets</h1>
+<form method="POST" action="/employee/tickets"><label>Subject<input name="subject" required></label><label>Description<textarea name="description" required></textarea></label><label>Priority<select name="priority"><option>low</option><option selected>normal</option><option>high</option><option>urgent</option></select></label><button>Create ticket</button></form>
+<% tickets.forEach(ticket => { %><article><h2><%= ticket.ticket_no %> - <%= ticket.subject %></h2><p><%= ticket.description %></p><p>Status: <strong><%= ticket.status %></strong> | Priority: <%= ticket.priority %></p>
+<% if (role === "it" || role === "admin") { %><form method="POST" action="/employee/tickets/<%= ticket.id %>/status"><select name="status"><option>open</option><option>in_progress</option><option>resolved</option><option>closed</option></select><button>Update</button></form><% } %>
+</article><% }) %></main></body></html>

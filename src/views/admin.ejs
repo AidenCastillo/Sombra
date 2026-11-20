@@ -13,6 +13,14 @@
             <h1>Administration Console</h1>
             <p>Administrative role accepted.</p>
             <pre>SOMBRA{cookie_manipulation_1p2q3r4s}</pre>
+            <section>
+                <h2>Portal overview</h2>
+                <p>Active users: <strong><%= stats.users %></strong></p>
+                <p>Documents: <strong><%= stats.documents %></strong></p>
+                <p>Open tickets: <strong><%= stats.openTickets %></strong></p>
+                <p>Total tickets: <strong><%= stats.tickets %></strong></p>
+            </section>
+            <a class="primary-action" href="/audit">View audit log</a>
             <a class="primary-action" href="/employee">Return to employee portal</a>
         </section>
     </main>

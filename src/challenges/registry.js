@@ -18,7 +18,7 @@ module.exports = [
         ],
 
         flag: "SOMBRA{backup_discovered_7f3a91c2}",
-        active: 0,
+        active: 1,
     },
     {
         id: "document-upload",
@@ -57,7 +57,7 @@ module.exports = [
         ],
 
         flag: "SOMBRA{unauthorized_access_9b1c2d3e}",
-        active: 0,
+        active: 1,
     },
     {
         id: "Decrypt Sensitive Information",
@@ -91,7 +91,7 @@ module.exports = [
             "You may need to research common techniques for exploiting password hashes.",
         ],
         flag: "SOMBRA{utilized_password_hash_8h9i0j1k}",
-        active: 0,
+        active: 1,
     },
     {
         id: "Wireshark Capture Analysis",
@@ -142,7 +142,7 @@ module.exports = [
             "Pay attention to any inline JavaScript or CSS that might reveal information about the portal's functionality.",
         ],
         flag: "SOMBRA{html_inspection_2t3u4v5w}",
-        active: 0,
+        active: 1,
     },
     {
         id: "Are my Endpoints Secure?",
@@ -159,6 +159,7 @@ module.exports = [
             "Check the application's source code for any hardcoded API endpoint URLs.",
         ],
         flag: "SOMBRA{how_did_you_find_this_endpoint_3x4y5z6a}",
+        active: 1,
     },
     {
         id: "IDs Aren't Access Control",

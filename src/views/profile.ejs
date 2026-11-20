@@ -1,0 +1,61 @@
+<!-- Employee Profile -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <title>Sombra Technologies | Employee Profile</title>
+
+        <link rel="stylesheet" href="/css/app.css" />
+    </head>
+    <body>
+        <div class="archive">
+            <header>
+                <h2>SOMBRA TECHNOLOGIES</h2>
+                <small>EMPLOYEE WORKSPACE</small>
+                <div style="float: right; margin-top: -42px; text-align: right">
+                    <small>SESSION ROLE: <strong><%= role %></strong></small>
+                    <form
+                        method="POST"
+                        action="/logout"
+                        style="margin-top: 8px"
+                    >
+                        <button
+                            type="submit"
+                            style="
+                                border: 1px solid #a8bdd4;
+                                background: transparent;
+                                color: white;
+                                padding: 6px 10px;
+                            "
+                        >
+                            Log out
+                        </button>
+                    </form>
+                </div>
+            </header>
+
+            <main>
+                <p class="label">INTERNAL EMPLOYEE PORTAL</p>
+
+                <h1>Employee Profile</h1>
+
+                <p>View and manage your employee information.</p>
+
+                <hr />
+
+                <h3>Profile Information</h3>
+
+                <p><strong>Name:</strong> <%= employee.first_name %> <%= employee.last_name %></p>
+                <p><strong>Title:</strong> <%= employee.title %></p>
+                <p><strong>Email:</strong> <%= employee.email %></p>
+                <p><strong>Department:</strong> <%= employee.department %></p>
+                <p><strong>Office:</strong> <%= employee.office %></p>
+                <% if (employee.notes) { %>
+                <p><strong>Internal Notes:</strong> <%= employee.notes %></p>
+                <% } %>
+            </main>
+        </div>
+    </body>
+</html>

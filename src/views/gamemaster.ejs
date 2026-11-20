@@ -21,6 +21,7 @@
             <a href="#teams">Teams</a>
             <a href="#challenges">Challenges</a>
             <a href="#broadcast">Broadcast</a>
+            <a href="#game_control">Game Control</a>
         </nav>
 
         <div class="operator-status">
@@ -92,6 +93,40 @@
                         <input id="banner" name="banner" maxlength="200" value="<%= state.banner %>" placeholder="Authorized activity detected...">
                         <button type="submit">Broadcast</button>
                     </div>
+                </form>
+            </article>
+
+            <article class="panel" id="game_control">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">GAME CONTROL</p>
+                        <h2>Game Control</h2>
+                    </div>
+                </div>
+
+                <form method="POST" action="/gamemaster/game_control" class="mode-form">
+                    <label class="toggle-row">
+                        <span>
+                            <strong>Challenge handicap</strong>
+                            <small>Reduce the point value of all challenges by 50%</small>
+                        </span>
+                        <input type="checkbox" name="handicapMode" value="1" <%= state.handicapMode ? "checked" : "" %>>
+                    </label>
+                    <label class="toggle-row">
+                        <span>
+                            <strong>Challenge freeze</strong>
+                            <small>Prevent teams from submitting any challenges</small>
+                        </span>
+                        <input type="checkbox" name="freezeMode" value="1" <%= state.freezeMode ? "checked" : "" %>>
+                    </label>
+                    <label class="toggle-row">
+                        <span>
+                            <strong>Show all routes</strong>
+                            <small>Reveal all challenge routes to teams</small>
+                        </span>
+                        <input type="checkbox" name="showRoutes" value="1" <%= state.showRoutes ? "checked" : "" %>>
+                    </label>
+                    <button type="submit" class="primary-button">Apply challenge state</button>
                 </form>
             </article>
 

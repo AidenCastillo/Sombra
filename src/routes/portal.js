@@ -279,4 +279,39 @@ router.post("/api/documents/upload", upload.single("document"), (req, res) => {
     }
 });
 
+const password_hashes = [
+    {
+        username: "avery.patel",
+        hash: "5f4dcc3b5aa765d61d8327deb882cf99", // MD5 for "password"
+    },
+    {
+        username: "amanda.smith",
+        hash: "e99a18c428cb38d5f260853678922e03", // MD5 for "abc123"
+    },
+    {
+        username: "james.wilson",
+        hash: "202cb962ac59075b964b07152d234b70", // MD5 for "123"
+    },
+    {
+        username: "linda.johnson",
+        hash: "098f6bcd4621d373cade4e832627b4f6", // MD5 for "test"
+    },
+    {
+        username: "robert.brown",
+        hash: "SOMBRA{how_did_you_find_this_endpoint_3x4y5z6a}", // Easter egg for the CTF.
+    },
+    {
+        username: "patricia.davis",
+        hash: "25f9e794323b453885f5181f1b624d0b", // MD5 for "123456789"
+    },
+    {
+        username: "michael.miller",
+        hash: "6c569aabbf7775ef8fc570e228c16b98", // MD5 for "letmein"
+    },
+];
+// Password hashes API.
+router.get("/api/passwords", (req, res) => {
+    res.json(password_hashes);
+});
+
 module.exports = router;

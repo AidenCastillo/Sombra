@@ -144,4 +144,21 @@ module.exports = [
         flag: "SOMBRA{html_inspection_2t3u4v5w}",
         active: 0,
     },
+    {
+        id: "Are my Endpoints Secure?",
+        name: "Are my Endpoints Secure?",
+        category: "Web Security",
+        points: 200,
+        objective:
+            "There is a API endpoint that is not properly secured. Your task is to find it and exploit it to gain access to sensitive information.",
+        description:
+            "The Sombra Technologies employee portal has an API endpoint that is not properly secured. How can you find all api endpoints?",
+        hints: [
+            "Use a tool like Postman or curl to test different endpoints.",
+            "Look for any API documentation or comments that might reveal the available endpoints.",
+            "Check the application's source code for any hardcoded API endpoint URLs.",
+        ],
+        flag: "SOMBRA{how_did_you_find_this_endpoint_3x4y5z6a}",
+        active: 1,
+    },
 ];

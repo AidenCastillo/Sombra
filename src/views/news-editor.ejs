@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>News Editor | Sombra Technologies</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+    <main>
+        <header>
+            <h1>News Editor</h1>
+            <p>Signed-in editor: <strong><%= username %></strong></p>
+        </header>
+
+        <form method="POST" action="/employee/news/editor">
+            <label for="title">Title</label>
+            <input id="title" name="title" maxlength="160" required>
+
+            <label for="category">Category</label>
+            <input id="category" name="category" value="General" maxlength="80">
+
+            <label for="body">Announcement</label>
+            <textarea id="body" name="body" maxlength="4000" rows="8" required></textarea>
+
+            <label for="published">
+                <input id="published" type="checkbox" name="published" value="1" checked>
+                Publish immediately
+            </label>
+
+            <button type="submit">Create announcement</button>
+        </form>
+
+        <h2>Announcements</h2>
+        <% announcements.forEach(announcement => { %>
+            <article>
+                <h3><%= announcement.title %></h3>
+                <p><%= announcement.body %></p>
+                <small>
+                    <%= announcement.category %> |
+                    <%= announcement.published ? "Published" : "Draft" %> |
+                    <%= announcement.author_username || "System" %>
+                </small>
+            </article>
+        <% }) %>
+
+        <p><a href="/employee/news">Return to Company News</a></p>
+    </main>
+</body>
+</html>

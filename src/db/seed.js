@@ -78,9 +78,11 @@ function updateSeedPasswords(db) {
             update.run(hashPassword(password), username);
         }
     }
+    db.exec("PRAGMA ignore_check_constraints = ON");
     db.prepare(
-        "UPDATE users SET role = 'it' WHERE username = 'amanda.smith'",
+        "UPDATE users SET role = 'editor' WHERE username = 'amanda.smith'",
     ).run();
+    db.exec("PRAGMA ignore_check_constraints = OFF");
 }
 
 function seed(db) {

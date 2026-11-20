@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
     department_id INTEGER NOT NULL,
 
     role TEXT NOT NULL DEFAULT 'employee'
-        CHECK(role IN ('employee', 'it', 'admin')),
+        CHECK(role IN ('employee', 'editor', 'it', 'admin')),
 
     office TEXT,
     phone_extension TEXT,

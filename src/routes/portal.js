@@ -11,6 +11,9 @@ const router = express.Router();
 const COOKIE_NAME = "portal_session";
 const LEGACY_COOKIE_NAME = "sombra_session";
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
+const SESSION_SECRET =
+    process.env.SESSION_SECRET || "development-session-secret";
+const SESSION_KEY = crypto.createHash("sha256").update(SESSION_SECRET).digest();
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -26,8 +29,42 @@ function audit(req, userId, eventType, target, details) {
     ).run(userId || null, eventType, target, req.ip || null, details || null);
 }
 
-function sessionCookie(token, maxAge) {
-    return `${COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}`;
+function encryptSessionPayload(payload) {
+    const iv = crypto.randomBytes(12);
+    const cipher = crypto.createCipheriv("aes-256-gcm", SESSION_KEY, iv);
+    const encrypted = Buffer.concat([
+        cipher.update(JSON.stringify(payload), "utf8"),
+        cipher.final(),
+    ]);
+    const tag = cipher.getAuthTag();
+    return `${iv.toString("base64url")}.${tag.toString("base64url")}.${encrypted.toString("base64url")}`;
+}
+
+function decryptSessionPayload(token) {
+    try {
+        const [ivText, tagText, encryptedText] = String(token).split(".");
+        if (!ivText || !tagText || !encryptedText) return null;
+
+        const decipher = crypto.createDecipheriv(
+            "aes-256-gcm",
+            SESSION_KEY,
+            Buffer.from(ivText, "base64url"),
+        );
+        decipher.setAuthTag(Buffer.from(tagText, "base64url"));
+        const decrypted = Buffer.concat([
+            decipher.update(Buffer.from(encryptedText, "base64url")),
+            decipher.final(),
+        ]);
+        return JSON.parse(decrypted.toString("utf8"));
+    } catch {
+        return null;
+    }
+}
+
+function sessionCookie(payload, maxAge) {
+    const encrypted = encryptSessionPayload(payload);
+    const secure = process.env.NODE_ENV === "production" ? " Secure;" : "";
+    return `${COOKIE_NAME}=${encodeURIComponent(encrypted)}; Path=/; HttpOnly;${secure} SameSite=Lax; Max-Age=${maxAge}`;
 }
 
 function readPortalSession(req) {
@@ -97,6 +134,49 @@ function readPortalSession(req) {
     };
 }
 
+function readSecurePortalSession(req) {
+    const cookie = (req.headers.cookie || "")
+        .split(";")
+        .map((part) => part.trim())
+        .find((part) => part.startsWith(`${COOKIE_NAME}=`));
+    if (!cookie) return null;
+
+    const encrypted = decodeURIComponent(cookie.slice(COOKIE_NAME.length + 1));
+    const payload = decryptSessionPayload(encrypted);
+    if (
+        !payload ||
+        !payload.tokenHash ||
+        !Number.isInteger(payload.expiresAt) ||
+        payload.expiresAt <= Date.now()
+    ) {
+        return null;
+    }
+
+    db.prepare("DELETE FROM sessions WHERE expires_at <= ?").run(Date.now());
+
+    const session = db
+        .prepare(
+            `
+            SELECT sessions.user_id, users.username, users.role,
+                   users.first_name, users.last_name
+            FROM sessions
+            JOIN users ON users.id = sessions.user_id
+            WHERE sessions.token_hash = ?
+              AND users.active = 1
+              AND sessions.expires_at > ?
+        `,
+        )
+        .get(payload.tokenHash, Date.now());
+    if (!session) return null;
+
+    return {
+        userId: session.user_id,
+        username: session.username,
+        role: session.role,
+        name: `${session.first_name} ${session.last_name}`,
+    };
+}
+
 function requirePortalLogin(req, res, next) {
     const session = readPortalSession(req);
     if (!session) return res.redirect("/login");
@@ -113,6 +193,23 @@ function requireRole(...roles) {
                 currentRole: req.portalSession.role,
             });
         }
+        next();
+    };
+}
+
+function requireSecureRole(...roles) {
+    return (req, res, next) => {
+        const session = readSecurePortalSession(req);
+        if (!session) return res.redirect("/login");
+
+        if (!roles.includes(session.role)) {
+            return res.status(403).render("restricted", {
+                requiredRole: roles.join(" or "),
+                currentRole: session.role,
+            });
+        }
+
+        req.securePortalSession = session;
         next();
     };
 }
@@ -153,8 +250,16 @@ router.post("/login", (req, res) => {
 
     audit(req, user.id, "login", "portal", "Employee logged in");
     const legacyRole = user.role === "admin" ? "admin" : "basic";
+    const expiresAt = Date.now() + SESSION_TTL_MS;
+    db.prepare("UPDATE sessions SET expires_at = ? WHERE token_hash = ?").run(
+        expiresAt,
+        tokenHash,
+    );
     res.setHeader("Set-Cookie", [
-        sessionCookie(token, Math.floor(SESSION_TTL_MS / 1000)),
+        sessionCookie(
+            { tokenHash, expiresAt },
+            Math.floor(SESSION_TTL_MS / 1000),
+        ),
         `${LEGACY_COOKIE_NAME}=user%3D${encodeURIComponent(user.username)}%26role%3D${legacyRole}; Path=/; SameSite=Lax`,
     ]);
     res.redirect("/employee");
@@ -166,12 +271,15 @@ router.post("/logout", requirePortalLogin, (req, res) => {
         .map((part) => part.trim())
         .find((part) => part.startsWith(`${COOKIE_NAME}=`));
     if (cookie) {
-        const token = decodeURIComponent(cookie.slice(COOKIE_NAME.length + 1));
-        const tokenHash = crypto
-            .createHash("sha256")
-            .update(token)
-            .digest("hex");
-        db.prepare("DELETE FROM sessions WHERE token_hash = ?").run(tokenHash);
+        const encrypted = decodeURIComponent(
+            cookie.slice(COOKIE_NAME.length + 1),
+        );
+        const payload = decryptSessionPayload(encrypted);
+        if (payload?.tokenHash) {
+            db.prepare("DELETE FROM sessions WHERE token_hash = ?").run(
+                payload.tokenHash,
+            );
+        }
     }
     audit(
         req,
@@ -211,6 +319,7 @@ router.get("/employee", requirePortalLogin, (req, res) => {
         role: req.portalSession.role,
         profileId: currentUser ? currentUser.id : null,
         announcements,
+        canEdit: readSecurePortalSession(req)?.role === "editor",
     });
 });
 
@@ -371,7 +480,7 @@ router.post(
 );
 
 router.get(
-    ["/employee/news", "/announcements"],
+    ["/employee/news", "/announcements", "/news"],
     requirePortalLogin,
     (req, res) => {
         const announcements = db
@@ -385,7 +494,72 @@ router.get(
             .all();
         if (req.accepts(["html", "json"]) === "json")
             return res.json(announcements);
-        res.render("news", { announcements, role: req.portalSession.role });
+
+        const secureSession = readSecurePortalSession(req);
+        res.render("news", {
+            announcements,
+            role: req.portalSession.role,
+            canEdit: secureSession?.role === "editor",
+        });
+    },
+);
+
+router.get("/employee/news/editor", requireSecureRole("editor"), (req, res) => {
+    const announcements = db
+        .prepare(
+            `
+                SELECT announcements.*, users.username AS author_username
+                FROM announcements
+                LEFT JOIN users ON users.id = announcements.author_id
+                ORDER BY created_at DESC
+            `,
+        )
+        .all();
+
+    res.render("news-editor", {
+        announcements,
+        role: req.securePortalSession.role,
+        username: req.securePortalSession.username,
+    });
+});
+
+router.post(
+    "/employee/news/editor",
+    requireSecureRole("editor"),
+    (req, res) => {
+        const title = String(req.body.title || "")
+            .trim()
+            .slice(0, 160);
+        const body = (
+            String(req.body.body || "") +
+            "\n\n<!-- SOMBRA{utilized_password_leak_8h9i0j1k} -->"
+        )
+            .trim()
+            .slice(0, 4000);
+        const category = String(req.body.category || "General")
+            .trim()
+            .slice(0, 80);
+        const published = req.body.published === "1" ? 1 : 0;
+
+        if (!title || !body) {
+            return res.status(400).send("Title and body are required.");
+        }
+
+        db.prepare(
+            `
+            INSERT INTO announcements
+                (title, body, category, author_id, published)
+            VALUES (?, ?, ?, ?, ?)
+        `,
+        ).run(title, body, category, req.securePortalSession.userId, published);
+        audit(
+            req,
+            req.securePortalSession.userId,
+            "announcement_create",
+            title,
+            `Published: ${published === 1 ? "yes" : "no"}`,
+        );
+        res.redirect("/employee/news/editor");
     },
 );
 

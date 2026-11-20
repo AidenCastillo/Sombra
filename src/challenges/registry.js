@@ -77,20 +77,20 @@ module.exports = [
         active: 0,
     },
     {
-        id: "Utilize Password Hash",
-        name: "Utilize Password Hash",
+        id: "Utilize Password Leaks",
+        name: "Utilize Password Leaks",
         category: "Password Cracking",
-        points: 300,
+        points: 200,
         objective:
-            "You have obtained a password hash. Your task is to figure out how to utilize it to gain access to a system or account.",
+            "You have obtained a password leak. Your task is to figure out how to utilize it to gain access to a system or account.",
         description:
-            "You have obtained a password hash from the Sombra Technologies system. Your goal is to use this hash to gain unauthorized access to a user's account or system.",
+            "You have obtained a password leak from the Sombra Technologies system. Your goal is to use this leak to gain unauthorized access to a user's account or system.",
         hints: [
-            "Does the HTTPS endpoint accept the hash directly for authentication?",
-            "Consider if the system is vulnerable to any specific attacks that could allow you to use the hash.",
-            "You may need to research common techniques for exploiting password hashes.",
+            "The leaked password may have been posted somewhere publicly. Consider searching for it online.",
+            "What is this person's job title? Could that be used to find more information about them?",
+            "Try using the leaked password with the associated username to see if you can gain access.",
         ],
-        flag: "SOMBRA{utilized_password_hash_8h9i0j1k}",
+        flag: "SOMBRA{utilized_password_leak_8h9i0j1k}",
         active: 1,
     },
     {

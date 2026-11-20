@@ -248,6 +248,9 @@
             <a href="/directory">Employee Directory</a>
             <a href="/documents">Documents</a>
             <a href="/news" class="active">Company News</a>
+            <% if (typeof canEdit !== "undefined" && canEdit) { %>
+                <a href="/employee/news/editor">News Editor</a>
+            <% } %>
         </nav>
 
         <main class="container">

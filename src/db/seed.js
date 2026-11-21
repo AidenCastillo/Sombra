@@ -12,6 +12,30 @@ const seedPasswords = {
 };
 
 function ensurePortalRecords(db) {
+    const remoteAccessGuide = db
+        .prepare("SELECT id FROM documents WHERE title = ?")
+        .get("Remote Access Guide");
+    if (remoteAccessGuide) {
+        db.prepare("UPDATE documents SET body = ? WHERE id = ?").run(
+            `<h2>Approved Remote Access</h2>
+<p>Employees must use the company-managed VPN and approved multi-factor authentication from a trusted device.</p>
+<h2>Before Connecting</h2>
+<ul>
+  <li>Install operating-system security updates.</li>
+  <li>Verify that endpoint protection is active and current.</li>
+  <li>Do not connect from public or shared computers.</li>
+</ul>
+<h2>Connecting</h2>
+<ol>
+  <li>Open the approved Sombra VPN client.</li>
+  <li>Sign in with your employee account.</li>
+  <li>Approve the sign-in prompt in your MFA application.</li>
+</ol>
+<p>For connection problems, contact IT and include the time of the failure and your device name. Do not include passwords or MFA codes in support requests.</p>`,
+            remoteAccessGuide.id,
+        );
+    }
+
     if (
         db.prepare("SELECT COUNT(*) AS count FROM announcements").get()
             .count === 0
@@ -255,7 +279,16 @@ function seed(db) {
             "Remote Access Guide",
             "IT Guides",
             "Approved remote access methods.",
-            "Use company-managed remote access software. Contact IT if you experience connection issues.",
+            `<h2>Approved Remote Access</h2>
+<p>We are still working on getting a fully secure remote access solution in place.</p>
+<p>For now, you can just use a telnet connection to access the system remotely.</p>
+<h2>Troubleshooting</h2>
+<ul>
+  <li>Check your network connection.</li>
+  <li>Verify that the required ports are open. We use 2323</li>
+  <li>Ensure your firewall allows outbound connections.</li>
+</ul>
+<p>For connection problems, contact IT and include the time of the failure and your device name. Do not include passwords or MFA codes in support requests.</p>`,
             2,
         ],
         [

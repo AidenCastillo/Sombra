@@ -177,4 +177,21 @@ module.exports = [
         flag: "SOMBRA{profile_ids_arent_access_control_9dm#bcu*}",
         active: 1,
     },
+    {
+        id: "Remote Work",
+        name: "Remote Work",
+        category: "Web Security",
+        points: 200,
+        objective:
+            "Investigate the remote work setup of the Sombra Technologies employee portal to identify any security vulnerabilities.",
+        description:
+            "The Sombra Technologies employee portal supports remote work. Your task is to analyze the remote work configuration and identify any potential security issues.",
+        hints: [
+            "Review the remote work policies and any associated documentation.",
+            "Check for any exposed endpoints or services that are accessible remotely.",
+            "Look for any misconfigurations in the remote work environment that could be exploited.",
+        ],
+        flag: "SOMBRA{remote_work_security_7e8f9g0h}",
+        active: 1,
+    },
 ];

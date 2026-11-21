@@ -389,6 +389,24 @@ router.get(
     ["/documents", "/employee/documents", "/api/documents"],
     requirePortalLogin,
     (req, res) => {
+        const requestedId = Number(req.query.id);
+        if (req.path !== "/api/documents" && Number.isInteger(requestedId) && requestedId > 0) {
+            const document = db
+                .prepare(
+                    `
+                SELECT documents.*, users.username AS owner_username
+                FROM documents LEFT JOIN users ON users.id = documents.owner_id
+                WHERE documents.id = ? AND documents.access_level = 'company'
+            `,
+                )
+                .get(requestedId);
+            if (!document) return res.status(404).send("Document not found.");
+            return res.render("document-viewer", {
+                document,
+                role: req.portalSession.role,
+            });
+        }
+
         const documents = db
             .prepare(
                 `
@@ -411,8 +429,16 @@ router.get(
     },
 );
 
-router.get("/documents?id=:id", requirePortalLogin, (req, res) => {
+router.get("/documents/upload", requirePortalLogin, (req, res) =>
+    res.render("document-upload"),
+);
+
+router.get("/documents/:id", requirePortalLogin, (req, res) => {
     const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+        return res.status(404).send("Document not found.");
+    }
+
     const document = db
         .prepare(
             `
@@ -423,12 +449,11 @@ router.get("/documents?id=:id", requirePortalLogin, (req, res) => {
         )
         .get(id);
     if (!document) return res.status(404).send("Document not found.");
-    res.render("document-viewer", { document, role: req.portalSession.role });
+    res.render("document-viewer", {
+        document,
+        role: req.portalSession.role,
+    });
 });
-
-router.get("/documents/upload", requirePortalLogin, (req, res) =>
-    res.render("document-upload"),
-);
 
 router.post(
     "/api/documents/upload",

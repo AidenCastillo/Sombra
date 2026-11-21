@@ -380,6 +380,21 @@
             font-size: 13px;
         }
 
+        #end-game {
+            background: red;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 23px;
+            margin-top: 20px;
+        }
+
+        #end-game h2 {
+            margin-bottom: 10px;
+        }
+        #end-game p {
+            margin: 0;
+        }
+
         .routes-panel {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -453,6 +468,11 @@
 </div>
 <div id="broadcast-banner" <%= gamemaster.banner ? "" : "hidden" %>>
     <%= gamemaster.banner %>
+</div>
+<div id="end-game" <%= gamemaster.gameEnded ? "" : "hidden" %>>
+    <h2>End Game</h2>
+    <p>The game has ended. No further submissions are allowed.</p>
+    <a href="/ctf/end-game" class="button">End Game Survey</a>
 </div>
 
 <nav class="navbar">

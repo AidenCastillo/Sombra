@@ -72,6 +72,12 @@
         });
     }
 
+    function updateEndGame(state) {
+        const section = document.getElementById("end-game");
+        if (!section) return;
+        section.hidden = !state.gamemaster.gameEnded;
+    }
+
     function updateChallenges(state) {
         const activeIds = new Set(
             state.challenges.map((challenge) => challenge.id),

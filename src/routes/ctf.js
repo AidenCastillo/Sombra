@@ -33,6 +33,7 @@ function getGamemasterState() {
         handicapMode: state.handicap_mode === "1",
         freezeMode: state.freeze_mode === "1",
         showRoutes: state.show_routes === "1",
+        gameEnded: state.game_ended === "1",
     };
 }
 
@@ -166,6 +167,19 @@ router.get("/ctf", (req, res) => {
         status: req.query.status || null,
         gamemaster: gamemaster,
         routes: gamemaster.showRoutes ? getVisibleRoutes(req.app) : [],
+    });
+});
+
+// End game survey
+router.get("/ctf/end-game", (req, res) => {
+    const teamName = String(req.query.team || "").trim();
+    const teamState = getTeamState(teamName);
+    const gamemaster = getGamemasterState();
+
+    res.render("ctf-end-game-survey", {
+        teamName,
+        teamScore: teamState.teamScore,
+        gamemaster,
     });
 });
 

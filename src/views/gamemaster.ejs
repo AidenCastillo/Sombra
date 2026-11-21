@@ -155,7 +155,22 @@
                     <% }) %>
                 </div>
             </article>
-        </section>
+            
+            
+            <article class="panel" id="end-game">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">GAME END</p>
+                            <h2>End Game</h2>
+                        </div>
+                    </div>
+                    <div class="end-game-list">
+                        <form method="POST" action="/gamemaster/end-game">
+                            <button class="danger-action" type="submit">End Game</button>
+                        </form>
+                    </div>
+            </article>
+    </section>
 
         <section class="console-grid lower-grid">
             <article class="panel" id="teams">

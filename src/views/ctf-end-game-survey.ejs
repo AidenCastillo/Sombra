@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debrief & Survey | Sombra Technologies</title>
+
+    <style>
+        :root {
+            --background: #100e15;
+            --surface: #191620;
+            --surface-light: #211c2b;
+            --border: #342b40;
+            --purple: #a855f7;
+            --purple-light: #c084fc;
+            --text: #f4effa;
+            --muted: #9991a6;
+            --green: #4ade80;
+            --red: #fb7185;
+            --yellow: #facc15;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            font-family: Arial, sans-serif;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .navbar {
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6%;
+            background: #17131e;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            font-weight: bold;
+            letter-spacing: 3px;
+            color: var(--purple-light);
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 25px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .nav-right a:hover {
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 45px auto;
+            padding: 0 25px;
+        }
+
+        .eyebrow {
+            color: var(--purple-light);
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 12px 0;
+            font-size: 36px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            line-height: 1.6;
+            max-width: 650px;
+        }
+
+        /* Summary Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 35px 0;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 22px;
+            border-radius: 9px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            margin-top: 12px;
+            font-weight: bold;
+            color: var(--text);
+            word-break: break-word;
+        }
+
+        .stat-value.highlight {
+            color: var(--yellow);
+        }
+
+        /* Survey Card & Form */
+        .survey-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 26px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .form-hint {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: #100e15;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            color: white;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--purple);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Custom Rating Buttons */
+        .rating-group {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .rating-option {
+            position: relative;
+        }
+
+        .rating-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .rating-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 8px;
+            background: #100e15;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--muted);
+            transition: all 0.15s ease;
+            text-align: center;
+        }
+
+        .rating-option label span {
+            font-size: 10px;
+            font-weight: normal;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        .rating-option input[type="radio"]:checked + label {
+            background: var(--surface-light);
+            border-color: var(--purple);
+            color: var(--purple-light);
+        }
+
+        .rating-option label:hover {
+            border-color: var(--purple-light);
+            color: white;
+        }
+
+        /* Checkbox Grid */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #100e15;
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            accent-color: var(--purple);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            background: var(--purple);
+            border: none;
+            color: white;
+            padding: 14px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button[type="submit"]:hover {
+            background: #9333ea;
+        }
+
+        .notice {
+            padding: 15px 18px;
+            margin: 20px 0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .notice.correct {
+            background: #123322;
+            color: var(--green);
+            border: 1px solid #287c50;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 30px 6%;
+            margin-top: 80px;
+            color: var(--muted);
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .footer-label {
+            float: right;
+        }
+
+        @media (max-width: 750px) {
+            .stats,
+            .checkbox-grid {
+                grid-template-columns: 1fr;
+            }
+            .rating-group {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand">SOMBRA</a>
+    <div class="nav-right">
+        <a href="/">Corporate Portal</a>
+        <a href="/directory">Directory</a>
+        <a href="/ctf">Security Operations</a>
+    </div>
+</nav>
+
+<main class="container">
+
+    <div class="eyebrow">Sombra Technologies / After-Action Report</div>
+    <h1>End Game Debrief & Survey</h1>
+    <p class="subtitle">
+        Thank you for participating in the Security Operations exercise. 
+        Complete this after-action survey to help the Gamemaster evaluate challenge balance, 
+        infrastructure stability, and overall exercise quality.
+    </p>
+
+    <% if (locals.submitted) { %>
+        <div class="notice correct">
+            ✓ After-action report logged. Thank you for your feedback!
+        </div>
+    <% } %>
+
+    <!-- Session Summary Cards -->
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-label">Participant Team</div>
+            <div class="stat-value"><%= teamName || "Unassigned" %></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Final Score</div>
+            <div class="stat-value highlight"><%= teamScore ? teamScore.points : 0 %> PTS</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Exercise Gamemaster</div>
+            <div class="stat-value"><%= gamemaster.name || "Command" %></div>
+        </div>
+    </div>
+
+    <!-- Survey Form -->
+    <section class="survey-panel">
+        <form action="/ctf/end-game" method="POST" id="debrief-form">
+            <input type="hidden" name="teamName" value="<%= teamName %>">
+            <input type="hidden" name="score" value="<%= teamScore ? teamScore.points : 0 %>">
+
+            <!-- 1. Overall Experience Rating -->
+            <div class="form-group">
+                <label class="form-label">1. Overall Exercise Rating</label>
+                <span class="form-hint">How would you rate your team's overall experience during the CTF?</span>
+                <div class="rating-group">
+                    <div class="rating-option">
+                        <input type="radio" id="rate-1" name="overallRating" value="1" required>
+                        <label for="rate-1">1<span>Poor</span></label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="rate-2" name="overallRating" value="2">
+                        <label for="rate-2">2<span>Fair</span></label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="rate-3" name="overallRating" value="3">
+                        <label for="rate-3">3<span>Good</span></label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="rate-4" name="overallRating" value="4">
+                        <label for="rate-4">4<span>Great</span></label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="rate-5" name="overallRating" value="5">
+                        <label for="rate-5">5<span>Elite</span></label>
+                    </div>
+                </div>
+            </div>
+            <!-- 2. Challenge Difficulty Balance -->
+            <div class="form-group">
+                <label class="form-label">2. Challenge Difficulty Balance</label>
+                <span class="form-hint">How did the technical difficulty align with your skill level?</span>
+                <div class="rating-group">
+                    <div class="rating-option">
+                        <input type="radio" id="diff-1" name="difficultyBalance" value="1" required>
+                        <label for="diff-1">1<span>Too Easy — Solved everything quickly</span></label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="diff-2" name="difficultyBalance" value="2">
+                        <label for="diff-2">2<span>Well Balanced — Good mix of entry and advanced tasks</span></label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="diff-3" name="difficultyBalance" value="3">
+                        <label for="diff-3">3<span>Challenging — Required significant effort and hints</span></label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="diff-4" name="difficultyBalance" value="4">
+                        <label for="diff-4">4<span>Too Hard — Felt stuck on most objectives</span></label>
+                    </div>
+                </div>
+            </div>
+            <!-- 3. Favorite Challenge & Why -->
+            <div class="form-group">
+                <label class="form-label">3. Favorite Challenge & Why</label>
+                <span class="form-hint">Which objective was the most fun or educational to solve?</span>
+                <textarea class="form-control" id="favoriteChallenge" name="favoriteChallenge" rows="4" required></textarea>
+            </div>
+            <!-- 4. Technical Issues, Bugs, or Suggestions -->
+            <div class="form-group">
+                <label class="form-label">4. Technical Issues, Bugs, or Suggestions</label>
+                <span class="form-hint">Did you encounter any broken endpoints, unclear objectives, or downtime?</span>
+                <textarea class="form-control" id="technicalIssues" name="technicalIssues" rows="4" required></textarea>
+            </div>
+            <!-- 5. Overall Rating -->
+            <div class="form-group">
+                <label class="form-label">5. Overall Rating</label>
+                <span class="form-hint">How would you rate the overall experience of the CTF exercise?</span>
+                <div class="rating-group">
+                    <div class="rating-option">
+                        <input type="radio" id="overall-1" name="overallRating" value="1" required>
+                        <label for="overall-1">1<span>Poor — Did not enjoy the experience</span></label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="overall-2" name="overallRating" value="2">
+                        <label for="overall-2">2<span>Fair — Some aspects were enjoyable</span></label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="overall-3" name="overallRating" value="3">
+                        <label for="overall-3">3<span>Good — Enjoyed the experience overall</span></label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="overall-4" name="overallRating" value="4">
+                        <label for="overall-4">4<span>Great — Highly enjoyable and educational</span></label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="overall-5" name="overallRating" value="5">
+                        <label for="overall-5">5<span>Elite — Exceptional experience</span></label>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <button type="submit" class="btn btn-primary">Submit Survey</button>
+    </body>
+</html>

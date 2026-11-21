@@ -78,6 +78,7 @@ function getState() {
         handicapMode: state.handicap_mode === "1",
         freezeMode: state.freeze_mode === "1",
         showRoutes: state.show_routes === "1",
+        gameEnded: state.game_ended === "1",
     };
 }
 
@@ -229,6 +230,11 @@ router.post("/gamemaster/game_control", requireGamemaster, (req, res) => {
     setState("handicap_mode", req.body.handicapMode === "1" ? "1" : "0");
     setState("freeze_mode", req.body.freezeMode === "1" ? "1" : "0");
     setState("show_routes", req.body.showRoutes === "1" ? "1" : "0");
+    res.redirect("/gamemaster");
+});
+
+router.post("/gamemaster/end-game", requireGamemaster, (req, res) => {
+    setState("game_ended", "1");
     res.redirect("/gamemaster");
 });
 

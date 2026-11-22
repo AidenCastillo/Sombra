@@ -18,6 +18,7 @@
 
         <nav>
             <a class="active" href="#overview">Overview</a>
+            <a href="#participants">Participants</a>
             <a href="#teams">Teams</a>
             <a href="#challenges">Challenges</a>
             <a href="#broadcast">Broadcast</a>
@@ -45,6 +46,10 @@
         </header>
 
         <section class="status-grid">
+            <article class="metric">
+                <small>ACTIVE PARTICIPANTS</small>
+                <strong><%= activeParticipantCount %></strong>
+            </article>
             <article class="metric">
                 <small>REGISTERED TEAMS</small>
                 <strong><%= teams.length %></strong>
@@ -173,6 +178,34 @@
     </section>
 
         <section class="console-grid lower-grid">
+            <article class="panel" id="participants">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">LIVE PARTICIPANTS</p>
+                        <h2>Active Users</h2>
+                    </div>
+                    <span class="live-tag"><%= activeParticipantCount %> ACTIVE</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Username</th><th>Team</th><th>Score</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            <% participants.forEach(participant => { %>
+                                <tr>
+                                    <td><strong><%= participant.username %></strong></td>
+                                    <td><%= participant.team_name %></td>
+                                    <td><span class="score"><%= participant.points %></span></td>
+                                    <td><span class="<%= participant.is_active ? "team-enabled" : "team-disabled" %>"><%= participant.is_active ? "Active" : "Offline" %></span></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                    <% if (!participants.length) { %><p class="empty-state">No registered participants yet.</p><% } %>
+                </div>
+            </article>
+
             <article class="panel" id="teams">
                 <div class="panel-heading">
                     <div>

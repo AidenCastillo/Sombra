@@ -14,6 +14,27 @@ CREATE TABLE IF NOT EXISTS ctf_teams (
     active INTEGER NOT NULL DEFAULT 1
 );
 
+-- Registered CTF participants
+CREATE TABLE IF NOT EXISTS ctf_players (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    password_hash TEXT NOT NULL,
+    team_id INTEGER NOT NULL,
+    last_seen INTEGER NOT NULL DEFAULT 0,
+    active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (team_id) REFERENCES ctf_teams(id)
+);
+
+-- CTF participant sessions. The browser receives only an opaque token.
+CREATE TABLE IF NOT EXISTS ctf_sessions (
+    token_hash TEXT PRIMARY KEY,
+    player_id INTEGER NOT NULL,
+    expires_at INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
+    FOREIGN KEY (player_id) REFERENCES ctf_players(id) ON DELETE CASCADE
+);
+
 -- Challenges registered in the CTF platform
 CREATE TABLE IF NOT EXISTS ctf_challenges (
     id TEXT PRIMARY KEY,

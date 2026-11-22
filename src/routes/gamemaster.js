@@ -128,6 +128,10 @@ router.post("/gamemaster/logout", (req, res) => {
 });
 
 router.get("/gamemaster", requireGamemaster, (req, res) => {
+    const now = Date.now();
+    db.prepare("DELETE FROM ctf_sessions WHERE expires_at <= ?").run(now);
+    const activeCutoff = now - 5 * 60 * 1000;
+
     const teams = db
         .prepare(
             `
@@ -146,6 +150,33 @@ router.get("/gamemaster", requireGamemaster, (req, res) => {
     `,
         )
         .all();
+
+    const participants = db
+        .prepare(
+            `
+        SELECT
+            p.id,
+            p.username,
+            t.team_name,
+            p.last_seen,
+            p.active,
+            CASE WHEN p.last_seen >= ? THEN 1 ELSE 0 END AS is_active,
+            COALESCE((
+                SELECT SUM(s.points_awarded)
+                FROM ctf_solves s
+                WHERE s.team_id = t.id
+            ), 0) AS points,
+            COALESCE((
+                SELECT COUNT(*)
+                FROM ctf_solves s
+                WHERE s.team_id = t.id
+            ), 0) AS solved
+        FROM ctf_players p
+        JOIN ctf_teams t ON t.id = p.team_id
+        ORDER BY is_active DESC, points DESC, p.username ASC
+    `,
+        )
+        .all(activeCutoff);
 
     const dbChallenges = db
         .prepare(
@@ -176,6 +207,10 @@ router.get("/gamemaster", requireGamemaster, (req, res) => {
         challenges: dbChallenges,
         attempts: recentAttempts,
         challengeCount: challenges.length,
+        participants,
+        activeParticipantCount: participants.filter(
+            (participant) => participant.is_active,
+        ).length,
     });
 });
 

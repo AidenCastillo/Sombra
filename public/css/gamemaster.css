@@ -171,7 +171,7 @@ input {
 
 .status-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
     margin-bottom: 12px;
 }
@@ -205,6 +205,9 @@ input {
 .lower-grid {
     grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
     margin-top: 12px;
+}
+#participants {
+    grid-column: 1 / -1;
 }
 .panel {
     border: 1px solid var(--line);

@@ -1,7 +1,6 @@
 (function () {
-    const teamName =
-        new URLSearchParams(window.location.search).get("team") || "";
-    const stateUrl = `/ctf/state?team=${encodeURIComponent(teamName)}`;
+    let participantUsername = null;
+    const stateUrl = "/ctf/state";
 
     function escapeHtml(value) {
         return String(value).replace(
@@ -110,9 +109,9 @@
                 }
             }
 
-            // Freeze: disable submissions (a team must also be loaded).
+            // Freeze: disable submissions (a participant must be signed in).
             const submit = card.querySelector(".flag-form button");
-            if (submit) submit.disabled = freeze || !teamName;
+            if (submit) submit.disabled = freeze || !participantUsername;
 
             if (!solvedIds.has(challengeId)) return;
 
@@ -148,6 +147,7 @@
             if (!response.ok) return;
 
             const state = await response.json();
+            participantUsername = state.username;
             updateChallenges(state);
             renderLeaderboard(state.leaderboard);
 

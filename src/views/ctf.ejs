@@ -546,32 +546,37 @@
 
     <section class="team-panel">
         <div class="eyebrow">Participant Identification</div>
-        <h2>Team Profile</h2>
+        <h2><%= participant ? "Participant Session" : "Sign In" %></h2>
 
-        <p class="subtitle">
-            Enter your team's name to track its challenge progress
-            and leaderboard position.
-        </p>
-
-        <form action="/ctf" method="GET">
-            <input
-                type="text"
-                name="team"
-                placeholder="Enter team name"
-                value="<%= teamName %>"
-                maxlength="32"
-                required
-            >
-
-            <button type="submit">Load Team</button>
-        </form>
-
-        <% if (teamScore) { %>
+        <% if (participant) { %>
             <p class="subtitle">
-                <strong><%= teamScore.teamName %></strong> —
-                <%= teamScore.solved %> challenges completed,
-                <%= teamScore.points %> points.
+                Signed in as <strong><%= participant.username %></strong> on
+                <strong><%= participant.team_name %></strong>.
             </p>
+            <% if (teamScore) { %>
+                <p class="subtitle">
+                    <%= teamScore.solved %> challenges completed,
+                    <%= teamScore.points %> points.
+                </p>
+            <% } %>
+            <form action="/ctf/logout" method="POST">
+                <button type="submit">Sign Out</button>
+            </form>
+        <% } else { %>
+            <p class="subtitle">Sign in with a participant account, or register a new account and team.</p>
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 700px;">
+                <form action="/ctf/login" method="POST" style="display:flex; flex-direction:column;">
+                    <input type="text" name="username" placeholder="Username" maxlength="32" required>
+                    <input type="password" name="password" placeholder="Password" maxlength="128" required>
+                    <button type="submit">Sign In</button>
+                </form>
+                <form action="/ctf/register" method="POST" style="display:flex; flex-direction:column;">
+                    <input type="text" name="username" placeholder="New username" maxlength="32" required>
+                    <input type="password" name="password" placeholder="New password (8+ characters)" maxlength="128" required>
+                    <input type="text" name="teamName" placeholder="Team name" maxlength="32" required>
+                    <button type="submit">Create Account</button>
+                </form>
+            </div>
         <% } %>
     </section>
 
@@ -633,12 +638,6 @@
                             type="hidden"
                             name="challengeId"
                             value="<%= challenge.id %>"
-                        >
-
-                        <input
-                            type="hidden"
-                            name="teamName"
-                            value="<%= teamName %>"
                         >
 
                         <input

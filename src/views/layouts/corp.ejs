@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>
-            <%= typeof title !== 'undefined' ? title : 'CTF Engine' %>
-        </title>
-        <link rel="stylesheet" href="/css/portal-reverse.css">
+        <!-- <title> -->
+        <!-- <%= typeof title !== 'undefined' ? title : 'CTF Engine' %> -->
+        <!-- </title> -->
+        <link rel="stylesheet" href="/css/portal-reverse.css" />
     </head>
     <body>
         <div id="portal-telemetry" aria-live="polite">
             <div id="portal-watch-banner" hidden>BLUE TEAM WATCH ACTIVE</div>
             <div id="portal-incident-banner" hidden>INCIDENT STATUS ACTIVE</div>
             <div id="portal-broadcast-banner" hidden></div>
-            <div id="portal-freeze-banner" hidden>PORTAL SUBMISSIONS FROZEN</div>
+            <div id="portal-freeze-banner" hidden>
+                PORTAL SUBMISSIONS FROZEN
+            </div>
         </div>
         <div id="portal-reverse-overlay" hidden>
             <div class="portal-reverse-panel">
@@ -27,7 +29,9 @@
                         placeholder="Enter answer"
                         autocomplete="off"
                     />
-                    <button id="portal-captcha-submit" type="button">Continue</button>
+                    <button id="portal-captcha-submit" type="button">
+                        Continue
+                    </button>
                 </div>
                 <p id="portal-reverse-countdown"></p>
             </div>

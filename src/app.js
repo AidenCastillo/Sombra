@@ -2,7 +2,7 @@ const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
 const helmet = require("helmet");
 const path = require("node:path");
-const ctfRoutes = require("./routes/ctf");
+const ctfRoutes = require("./routes/ctf/ctf");
 
 const app = express();
 

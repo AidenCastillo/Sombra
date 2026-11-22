@@ -183,6 +183,52 @@ router.get("/ctf/end-game", (req, res) => {
     });
 });
 
+const fs = require("fs").promises;
+const path = require("path");
+
+const SURVEY_FILE = path.join(__dirname, "survey_responses.json");
+router.post("/ctf/end-game", async (req, res) => {
+    const teamName = String(req.body.teamName || "").trim();
+    const teamState = getTeamState(teamName);
+    const gamemaster = getGamemasterState();
+
+    const newEntry = {
+        submittedAt: new Date().toISOString(),
+        teamName: teamName || "Anonymous",
+        teamScore: teamState?.teamScore ?? 0,
+        gamemaster,
+        responses: req.body,
+    };
+
+    try {
+        let allResponses = [];
+
+        // Read existing responses if the file already exists
+        try {
+            const fileData = await fs.readFile(SURVEY_FILE, "utf8");
+            allResponses = JSON.parse(fileData);
+            if (!Array.isArray(allResponses)) {
+                allResponses = [];
+            }
+        } catch (readErr) {
+            // Ignore ENOENT (file doesn't exist yet); rethrow other errors
+            if (readErr.code !== "ENOENT") throw readErr;
+        }
+
+        // Add the new response and write back valid JSON
+        allResponses.push(newEntry);
+        await fs.writeFile(
+            SURVEY_FILE,
+            JSON.stringify(allResponses, null, 2),
+            "utf8",
+        );
+    } catch (err) {
+        console.error("Error saving survey:", err);
+    }
+
+    res.redirect(`/ctf?team=${encodeURIComponent(teamName)}`);
+});
+
 // GET /ctf/state
 router.get("/ctf/state", (req, res) => {
     const teamName = String(req.query.team || "").trim();

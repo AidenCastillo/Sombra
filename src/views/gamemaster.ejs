@@ -171,7 +171,12 @@
                     </div>
                     <div class="end-game-list">
                         <form method="POST" action="/gamemaster/end-game">
-                            <button class="danger-action" type="submit">End Game</button>
+                            <% if (state.gameEnded === true) { %>
+                                <button class="danger-action" type="submit">Resume Game</button>
+                            <% } %>
+                            <% if (state.gameEnded === false) { %>
+                                <button class="danger-action" type="submit">End Game</button>
+                            <% } %>
                         </form>
                     </div>
             </article>

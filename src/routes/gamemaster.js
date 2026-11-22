@@ -269,8 +269,14 @@ router.post("/gamemaster/game_control", requireGamemaster, (req, res) => {
 });
 
 router.post("/gamemaster/end-game", requireGamemaster, (req, res) => {
-    setState("game_ended", "1");
-    res.redirect("/gamemaster");
+    console.log(getState().gameEnded);
+    if (getState().gameEnded === true) {
+        setState("game_ended", "0");
+        res.redirect("/gamemaster");
+    } else {
+        setState("game_ended", "1");
+        res.redirect("/gamemaster");
+    }
 });
 
 module.exports = router;

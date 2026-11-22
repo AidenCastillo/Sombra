@@ -36,6 +36,27 @@ test("Portal loads", async () => {
     assert.match(response.text, /Sombra Technologies/);
 });
 
+test("Corp layout loads portal reverse assets", async () => {
+    const response = await request(app).get("/").expect(200);
+
+    assert.match(response.text, /\/css\/portal-reverse\.css/);
+    assert.match(response.text, /\/js\/portal-reverse\.js/);
+});
+
+test("CTF page uses its own layout and does not load portal reverse assets", async () => {
+    const response = await request(app).get("/ctf").expect(200);
+
+    assert.doesNotMatch(response.text, /portal-reverse\.css/);
+    assert.doesNotMatch(response.text, /portal-reverse\.js/);
+});
+
+test("Portal live state endpoint exposes gamemaster telemetry", async () => {
+    const response = await request(app).get("/portal/live-state").expect(200);
+
+    assert.equal(response.body.gamemaster.reverseEffect, "none");
+    assert.equal(typeof response.body.gamemaster.banner, "string");
+});
+
 test("robots.txt exposes backup path", async () => {
     const response = await request(app).get("/robots.txt").expect(200);
 

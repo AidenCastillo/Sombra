@@ -460,8 +460,8 @@ The following is the recommended order for expanding Sombra.
 
 ## Phase 2 — Expand the CTF Platform
 
-- [ ] Proper team registration
-- [ ] Password-protected team accounts
+- [x] Proper team registration
+- [x] Password-protected team accounts
 - [ ] Team member management
 - [ ] Instructor accounts
 - [ ] Instructor dashboard

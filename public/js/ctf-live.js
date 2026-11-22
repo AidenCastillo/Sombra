@@ -138,6 +138,150 @@
         }
     }
 
+    let reverseSignature = "";
+    let captchaSolvedSignature = "";
+    let captchaRoundIndex = 0;
+    let captchaWrongLockUntil = 0;
+    let reverseCountdownTimer = null;
+
+    function getCaptchaRound(nonce, round) {
+        const seed = nonce || "SOMBRA";
+        const a = (seed.charCodeAt(0) % 8) + 3;
+        const b = (seed.charCodeAt(1) % 9) + 2;
+        const code =
+            (seed.replace(/[^A-Za-z0-9]/g, "").toUpperCase() + "SOMBRA").slice(0, 6);
+
+        if (round === 0) {
+            return { prompt: code, answer: code, label: "Round 1/3 · Enter the verification code" };
+        }
+        if (round === 1) {
+            return { prompt: `${a} + ${b} = ?`, answer: String(a + b), label: "Round 2/3 · Solve the security check" };
+        }
+        return { prompt: "SOMBRA-BLUE-7", answer: "SOMBRA-BLUE-7", label: "Round 3/3 · Transcribe the final phrase" };
+    }
+
+    function updateReverseEffect(gamemaster) {
+        const effect = gamemaster.reverseEffect || "none";
+        const until = Number(gamemaster.reverseUntil || 0);
+        const nonce = gamemaster.reverseNonce || "";
+        const signature = `${effect}:${until}:${nonce}`;
+
+        document.body.classList.remove(
+            "reverse-scramble",
+            "reverse-throttle",
+        );
+
+        const overlay = document.getElementById("reverse-overlay");
+        const captchaPanel = document.getElementById("captcha-panel");
+        const title = document.getElementById("reverse-overlay-title");
+        const copy = document.getElementById("reverse-overlay-copy");
+        const countdown = document.getElementById("reverse-countdown");
+        if (!overlay) return;
+
+        if (effect === "none" || until <= Date.now()) {
+            overlay.hidden = true;
+            captchaPanel.hidden = true;
+            document.querySelectorAll(".flag-form button").forEach((button) => {
+                button.disabled = !participantUsername || Boolean(gamemaster.freezeMode);
+            });
+            if (reverseCountdownTimer) {
+                window.clearInterval(reverseCountdownTimer);
+                reverseCountdownTimer = null;
+            }
+            return;
+        }
+
+        if (reverseSignature !== signature) {
+            reverseSignature = signature;
+            captchaRoundIndex = 0;
+            captchaWrongLockUntil = 0;
+            const challenge = getCaptchaRound(nonce, captchaRoundIndex);
+            const captchaCode = document.getElementById("captcha-code");
+            if (captchaCode) captchaCode.textContent = challenge.prompt;
+            if (copy) copy.textContent = challenge.label;
+            const answer = document.getElementById("captcha-answer");
+            if (answer) answer.value = "";
+        }
+
+        if (effect === "captcha") {
+            if (captchaSolvedSignature === signature) {
+                overlay.hidden = true;
+                captchaPanel.hidden = true;
+                document.querySelectorAll(".flag-form button").forEach((button) => {
+                    button.disabled = !participantUsername || Boolean(gamemaster.freezeMode);
+                });
+            } else {
+                overlay.hidden = false;
+                captchaPanel.hidden = false;
+                title.textContent = "Security Verification Required";
+                document.querySelectorAll(".flag-form button").forEach((button) => {
+                    button.disabled = true;
+                });
+            }
+        } else if (effect === "scramble") {
+            overlay.hidden = true;
+            captchaPanel.hidden = true;
+            document.body.classList.add("reverse-scramble");
+        } else if (effect === "throttle") {
+            overlay.hidden = true;
+            captchaPanel.hidden = true;
+            document.body.classList.add("reverse-throttle");
+            document.querySelectorAll(".flag-form button").forEach((button) => {
+                button.disabled = true;
+            });
+        } else if (effect === "blackout") {
+            overlay.hidden = false;
+            captchaPanel.hidden = true;
+            title.textContent = "Portal Temporarily Blacked Out";
+            copy.textContent = "Blue Team has interrupted this portal.";
+            document.querySelectorAll(".flag-form button").forEach((button) => {
+                button.disabled = true;
+            });
+        }
+
+        if (reverseCountdownTimer) window.clearInterval(reverseCountdownTimer);
+        reverseCountdownTimer = window.setInterval(() => {
+            const remaining = Math.max(0, Math.ceil((until - Date.now()) / 1000));
+            countdown.textContent = remaining
+                ? `Countermeasure expires in ${remaining}s`
+                : "";
+            if (remaining === 0) updateCtfState();
+        }, 250);
+
+        const verify = document.getElementById("captcha-submit");
+        if (verify && !verify.dataset.bound) {
+            verify.dataset.bound = "1";
+            verify.addEventListener("click", () => {
+                if (Date.now() < captchaWrongLockUntil) return;
+                const answer = document.getElementById("captcha-answer");
+                const challenge = getCaptchaRound(nonce, captchaRoundIndex);
+                if (answer.value.trim().toUpperCase() === challenge.answer) {
+                    captchaRoundIndex += 1;
+                    if (captchaRoundIndex >= 3) {
+                        captchaSolvedSignature = signature;
+                        overlay.hidden = true;
+                        document.querySelectorAll(".flag-form button").forEach((button) => {
+                            button.disabled = !participantUsername || Boolean(gamemaster.freezeMode);
+                        });
+                        updateCtfState();
+                    } else {
+                        const next = getCaptchaRound(nonce, captchaRoundIndex);
+                        document.getElementById("captcha-code").textContent = next.prompt;
+                        copy.textContent = next.label;
+                        answer.value = "";
+                        answer.placeholder = "Enter answer";
+                        answer.focus();
+                    }
+                } else {
+                    captchaWrongLockUntil = Date.now() + 1500;
+                    answer.value = "";
+                    answer.placeholder = "Incorrect - 1.5 second delay";
+                    answer.focus();
+                }
+            });
+        }
+    }
+
     async function updateCtfState() {
         try {
             const response = await fetch(stateUrl, {
@@ -167,6 +311,8 @@
             if (freezeNotice) {
                 freezeNotice.hidden = !state.gamemaster.freezeMode;
             }
+
+            updateReverseEffect(state.gamemaster);
 
             renderRoutes(state.gamemaster, state.routes || []);
         } catch {

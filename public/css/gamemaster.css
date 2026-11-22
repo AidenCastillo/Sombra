@@ -271,6 +271,40 @@ input {
     background: #10203a;
 }
 
+.reverse-attack-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 12px;
+    padding: 16px 20px 8px;
+}
+.reverse-attack-form label {
+    margin-bottom: -4px;
+    color: var(--muted);
+    font-size: 10px;
+}
+.reverse-attack-form select {
+    height: 38px;
+    width: 100%;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--text);
+    padding: 0 8px;
+}
+.reverse-attack-form .primary-button {
+    grid-column: 1 / -1;
+}
+.reverse-clear-form {
+    padding: 8px 20px 18px;
+}
+.reverse-clear-form button {
+    width: 100%;
+    height: 34px;
+    border: 1px solid #7f3042;
+    background: #351821;
+    color: #fecdd3;
+    cursor: pointer;
+}
+
 .broadcast-form {
     padding: 15px 20px 20px;
     border-top: 1px solid var(--line);

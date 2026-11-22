@@ -21,7 +21,9 @@ function readParticipantSession(req) {
     const token = cookie.slice(CTF_COOKIE_NAME.length + 1);
     if (!token) return null;
 
-    db.prepare("DELETE FROM ctf_sessions WHERE expires_at <= ?").run(Date.now());
+    db.prepare("DELETE FROM ctf_sessions WHERE expires_at <= ?").run(
+        Date.now(),
+    );
 
     const tokenHash = crypto
         .createHash("sha256")
@@ -76,7 +78,7 @@ function createParticipantSession(res, participant) {
     const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
     res.setHeader(
         "Set-Cookie",
-        `${CTF_COOKIE_NAME}=${token}; Path=/ctf; HttpOnly; SameSite=Strict; Max-Age=${Math.floor(CTF_SESSION_TTL_MS / 1000)}${secure}`,
+        `${CTF_COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${Math.floor(CTF_SESSION_TTL_MS / 1000)}${secure}`,
     );
 }
 
@@ -94,12 +96,22 @@ function publicChallenges() {
         .map(({ flag, ...challenge }) => challenge);
 }
 
-function getGamemasterState() {
+function getGamemasterState(teamId = null) {
     const rows = db
         .prepare("SELECT key, value FROM ctf_gamemaster_state")
         .all();
 
     const state = Object.fromEntries(rows.map((row) => [row.key, row.value]));
+    const reverseUntil = Number(state.reverse_until || 0);
+    const reverseTeamId = Number(state.reverse_team_id || 0);
+    const reverseActive =
+        teamId &&
+        reverseTeamId === Number(teamId) &&
+        reverseUntil > Date.now() &&
+        ["captcha", "scramble", "throttle", "blackout"].includes(
+            state.reverse_effect,
+        );
+
     return {
         banner: state.banner || "",
         incidentMode: state.incident_mode === "1",
@@ -108,6 +120,9 @@ function getGamemasterState() {
         freezeMode: state.freeze_mode === "1",
         showRoutes: state.show_routes === "1",
         gameEnded: state.game_ended === "1",
+        reverseEffect: reverseActive ? state.reverse_effect : "none",
+        reverseUntil: reverseActive ? reverseUntil : 0,
+        reverseNonce: reverseActive ? state.reverse_nonce || "" : "",
     };
 }
 
@@ -231,9 +246,10 @@ router.get("/ctf", (req, res) => {
     const teamName = participant?.team_name || "";
     const teamState = getTeamState(teamName);
     const leaderboard = getLeaderboard();
-    const gamemaster = getGamemasterState();
+    const gamemaster = getGamemasterState(participant?.team_id);
 
     res.render("ctf", {
+        layout: "layouts/ctf",
         challenges: publicChallenges(),
         leaderboard: leaderboard.slice(0, 10),
         participant,
@@ -256,7 +272,11 @@ router.post("/ctf/register", (req, res) => {
         username.length > 32 ||
         !/^[a-zA-Z0-9._-]+$/.test(username)
     ) {
-        return res.status(400).send("Username must be 3–32 letters, numbers, dots, underscores, or hyphens.");
+        return res
+            .status(400)
+            .send(
+                "Username must be 3–32 letters, numbers, dots, underscores, or hyphens.",
+            );
     }
     if (password.length < 8 || password.length > 128) {
         return res.status(400).send("Password must be 8–128 characters.");
@@ -266,7 +286,11 @@ router.post("/ctf/register", (req, res) => {
         teamName.length > 32 ||
         !/^[a-zA-Z0-9 _-]+$/.test(teamName)
     ) {
-        return res.status(400).send("Team name must be 2–32 letters, numbers, spaces, underscores, or hyphens.");
+        return res
+            .status(400)
+            .send(
+                "Team name must be 2–32 letters, numbers, spaces, underscores, or hyphens.",
+            );
     }
 
     const existing = db
@@ -281,17 +305,21 @@ router.post("/ctf/register", (req, res) => {
             "INSERT OR IGNORE INTO ctf_teams (team_name) VALUES (?)",
         ).run(teamName);
         const team = db
-            .prepare("SELECT id, team_name, active FROM ctf_teams WHERE team_name = ?")
+            .prepare(
+                "SELECT id, team_name, active FROM ctf_teams WHERE team_name = ?",
+            )
             .get(teamName);
         if (!team.active) {
             throw new Error("Team disabled");
         }
-        const result = db.prepare(
-            `
+        const result = db
+            .prepare(
+                `
             INSERT INTO ctf_players (username, password_hash, team_id)
             VALUES (?, ?, ?)
         `,
-        ).run(username, hashPassword(password), team.id);
+            )
+            .run(username, hashPassword(password), team.id);
         return db
             .prepare(
                 `
@@ -343,7 +371,9 @@ router.post("/ctf/login", (req, res) => {
         return res.status(401).send("Invalid username or password.");
     }
     if (!player.team_active) {
-        return res.status(403).send("This participant's team has been disabled.");
+        return res
+            .status(403)
+            .send("This participant's team has been disabled.");
     }
 
     createParticipantSession(res, player);
@@ -356,13 +386,20 @@ router.post("/ctf/logout", (req, res) => {
         .map((part) => part.trim())
         .find((part) => part.startsWith(`${CTF_COOKIE_NAME}=`));
     if (cookie) {
-        const token = decodeURIComponent(cookie.slice(CTF_COOKIE_NAME.length + 1));
-        const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-        db.prepare("DELETE FROM ctf_sessions WHERE token_hash = ?").run(tokenHash);
+        const token = decodeURIComponent(
+            cookie.slice(CTF_COOKIE_NAME.length + 1),
+        );
+        const tokenHash = crypto
+            .createHash("sha256")
+            .update(token)
+            .digest("hex");
+        db.prepare("DELETE FROM ctf_sessions WHERE token_hash = ?").run(
+            tokenHash,
+        );
     }
     res.setHeader(
         "Set-Cookie",
-        `${CTF_COOKIE_NAME}=; Path=/ctf; HttpOnly; SameSite=Strict; Max-Age=0`,
+        `${CTF_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`,
     );
     res.redirect("/ctf");
 });
@@ -372,9 +409,10 @@ router.get("/ctf/end-game", (req, res) => {
     const participant = readParticipantSession(req);
     const teamName = participant?.team_name || "";
     const teamState = getTeamState(teamName);
-    const gamemaster = getGamemasterState();
+    const gamemaster = getGamemasterState(participant?.team_id);
 
     res.render("ctf-end-game-survey", {
+        layout: "layouts/ctf",
         teamName,
         teamScore: teamState.teamScore,
         gamemaster,
@@ -389,7 +427,7 @@ router.post("/ctf/end-game", async (req, res) => {
     const participant = readParticipantSession(req);
     const teamName = participant?.team_name || "Anonymous";
     const teamState = getTeamState(teamName);
-    const gamemaster = getGamemasterState();
+    const gamemaster = getGamemasterState(participant?.team_id);
 
     const newEntry = {
         submittedAt: new Date().toISOString(),
@@ -434,7 +472,7 @@ router.get("/ctf/state", (req, res) => {
     const teamName = participant?.team_name || "";
     const teamState = getTeamState(teamName);
 
-    const gamemaster = getGamemasterState();
+    const gamemaster = getGamemasterState(participant?.team_id);
 
     res.json({
         challenges: publicChallenges(),
@@ -465,8 +503,18 @@ router.post("/ctf/submit", (req, res) => {
     if (!participant.team_active || !participant.player_active) {
         return res.status(403).send("This participant is no longer active.");
     }
-    if (getGamemasterState().freezeMode) {
+    const gamemaster = getGamemasterState(participant.team_id);
+    if (gamemaster.freezeMode) {
         return redirect("frozen");
+    }
+    if (gamemaster.reverseEffect === "throttle") {
+        return redirect("throttled");
+    }
+    if (
+        gamemaster.reverseEffect === "captcha" &&
+        String(req.body.reverseProof || "") !== gamemaster.reverseNonce
+    ) {
+        return redirect("captcha");
     }
 
     const challenge = db
@@ -553,7 +601,7 @@ router.post("/ctf/submit", (req, res) => {
         return redirect("incorrect");
     }
 
-    const awarded = getGamemasterState().handicapMode
+    const awarded = gamemaster.handicapMode
         ? Math.floor(challenge.points / 2)
         : challenge.points;
     // Record the successful solve.

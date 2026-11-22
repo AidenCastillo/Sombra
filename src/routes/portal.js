@@ -6,6 +6,7 @@ const { verifyPassword } = require("../auth/passwords");
 
 const db = require("../db/portal_connection");
 const uploadLabDb = require("../db/upload_lab_connection");
+const ctfDb = require("../db/ctf_connection");
 
 const router = express.Router();
 const COOKIE_NAME = "portal_session";
@@ -65,6 +66,116 @@ function sessionCookie(payload, maxAge) {
     const encrypted = encryptSessionPayload(payload);
     const secure = process.env.NODE_ENV === "production" ? " Secure;" : "";
     return `${COOKIE_NAME}=${encodeURIComponent(encrypted)}; Path=/; HttpOnly;${secure} SameSite=Lax; Max-Age=${maxAge}`;
+}
+
+function readCtfTeamId(req) {
+    const teamCookie = (req.headers.cookie || "")
+        .split(";")
+        .map((part) => part.trim())
+        .find((part) => part.startsWith("ctf_team_id="));
+    if (teamCookie) {
+        const teamId = Number(teamCookie.slice("ctf_team_id=".length));
+        if (Number.isInteger(teamId) && teamId > 0) return teamId;
+    }
+
+    const cookie = (req.headers.cookie || "")
+        .split(";")
+        .map((part) => part.trim())
+        .find((part) => part.startsWith("ctf_session="));
+    if (cookie) {
+        const token = decodeURIComponent(cookie.slice("ctf_session=".length));
+        if (token) {
+            const tokenHash = crypto
+                .createHash("sha256")
+                .update(token)
+                .digest("hex");
+            const participant = ctfDb
+                .prepare(
+                    `
+                    SELECT p.team_id
+                    FROM ctf_sessions s
+                    JOIN ctf_players p ON p.id = s.player_id
+                    WHERE s.token_hash = ? AND s.expires_at > ?
+                `,
+                )
+                .get(tokenHash, Date.now());
+            if (participant?.team_id) return participant.team_id;
+        }
+    }
+
+    const portalSession = readPortalSession(req);
+    if (!portalSession?.username) return null;
+
+    const participant = ctfDb
+        .prepare(
+            `
+            SELECT team_id
+            FROM ctf_players
+            WHERE username = ? AND active = 1
+        `,
+        )
+        .get(portalSession.username);
+    return participant?.team_id || null;
+}
+
+function getPortalReverseState(teamId) {
+    if (!teamId)
+        return { reverseEffect: "none", reverseUntil: 0, reverseNonce: "" };
+
+    const rows = ctfDb
+        .prepare("SELECT key, value FROM ctf_gamemaster_state")
+        .all();
+    const state = Object.fromEntries(rows.map((row) => [row.key, row.value]));
+    const reverseUntil = Number(state.reverse_until || 0);
+    const reverseTeamID = Number(state.reverse_team_id || 0);
+    const reverseActive =
+        teamId &&
+        reverseTeamID === Number(teamId) &&
+        reverseUntil > Date.now() &&
+        ["captcha", "scramble", "throttle", "blackout"].includes(
+            state.reverse_effect,
+        );
+    // const reverseActive =
+    //     Number(state.reverse_team_id || 0) === Number(teamId) &&
+    //     Number(state.reverse_until || 0) > Date.now();
+
+    return reverseActive
+        ? {
+              reverseEffect: state.reverse_effect,
+              reverseUntil: reverseUntil,
+              reverseNonce: state.reverse_nonce || "",
+          }
+        : { reverseEffect: "none", reverseUntil: 0, reverseNonce: "" };
+}
+
+function getGamemasterState(teamId = null) {
+    const rows = ctfDb
+        .prepare("SELECT key, value FROM ctf_gamemaster_state")
+        .all();
+
+    const state = Object.fromEntries(rows.map((row) => [row.key, row.value]));
+    const reverseUntil = Number(state.reverse_until || 0);
+    const reverseTeamId = Number(state.reverse_team_id || 0);
+    const reverseActive =
+        teamId &&
+        reverseTeamId === Number(teamId) &&
+        reverseUntil > Date.now() &&
+        ["captcha", "scramble", "throttle", "blackout"].includes(
+            state.reverse_effect,
+        );
+
+    return {
+        banner: state.banner || "",
+        incidentMode: state.incident_mode === "1",
+        watchMode: state.watch_mode === "1",
+        handicapMode: state.handicap_mode === "1",
+        freezeMode: state.freeze_mode === "1",
+        showRoutes: state.show_routes === "1",
+        gameEnded: state.game_ended === "1",
+        reverseEffect: reverseActive ? state.reverse_effect : "none",
+        reverseUntil: reverseActive ? reverseUntil : 0,
+        reverseNonce: reverseActive ? state.reverse_nonce || "" : "",
+    };
 }
 
 function readPortalSession(req) {
@@ -196,6 +307,43 @@ function requireRole(...roles) {
         next();
     };
 }
+
+router.get("/portal/reverse-state", (req, res) => {
+    res.json(getGamemasterState(readCtfTeamId(req)));
+});
+
+router.get("/portal/live-state", (req, res) => {
+    res.set("Cache-Control", "no-store");
+    res.json({ gamemaster: getGamemasterState(readCtfTeamId(req)) });
+});
+
+router.use((req, res, next) => {
+    if (
+        !req.path.startsWith("/ctf") &&
+        !req.path.startsWith("/gamemaster") &&
+        !req.path.startsWith("/portal") &&
+        req.method !== "GET" &&
+        req.method !== "HEAD"
+    ) {
+        const reverse = getPortalReverseState(readCtfTeamId(req));
+        if (
+            ["captcha", "throttle", "blackout"].includes(reverse.reverseEffect)
+        ) {
+            return res
+                .status(423)
+                .send(
+                    "Portal actions are locked by an active Blue Team countermeasure.",
+                );
+        }
+        const live = getGamemasterState(readCtfTeamId(req));
+        if (live.freezeMode) {
+            return res
+                .status(423)
+                .send("Portal submissions are frozen by the Game Master.");
+        }
+    }
+    next();
+});
 
 function requireSecureRole(...roles) {
     return (req, res, next) => {
@@ -390,7 +538,11 @@ router.get(
     requirePortalLogin,
     (req, res) => {
         const requestedId = Number(req.query.id);
-        if (req.path !== "/api/documents" && Number.isInteger(requestedId) && requestedId > 0) {
+        if (
+            req.path !== "/api/documents" &&
+            Number.isInteger(requestedId) &&
+            requestedId > 0
+        ) {
             const document = db
                 .prepare(
                     `

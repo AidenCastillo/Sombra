@@ -79,6 +79,9 @@ function getState() {
         freezeMode: state.freeze_mode === "1",
         showRoutes: state.show_routes === "1",
         gameEnded: state.game_ended === "1",
+        reverseEffect: state.reverse_effect || "none",
+        reverseTeamId: Number(state.reverse_team_id || 0),
+        reverseUntil: Number(state.reverse_until || 0),
     };
 }
 
@@ -97,7 +100,10 @@ function setState(key, value) {
 router.get("/gamemaster/login", (req, res) => {
     if (isAuthenticated(req)) return res.redirect("/gamemaster");
 
-    res.render("gamemaster-login", { error: req.query.error === "1" });
+    res.render("gamemaster-login", {
+        layout: "layouts/gamemaster",
+        error: req.query.error === "1",
+    });
 });
 
 router.post("/gamemaster/login", (req, res) => {
@@ -202,6 +208,7 @@ router.get("/gamemaster", requireGamemaster, (req, res) => {
         .all();
 
     res.render("gamemaster", {
+        layout: "layouts/gamemaster",
         state: getState(),
         teams,
         challenges: dbChallenges,
@@ -265,6 +272,49 @@ router.post("/gamemaster/game_control", requireGamemaster, (req, res) => {
     setState("handicap_mode", req.body.handicapMode === "1" ? "1" : "0");
     setState("freeze_mode", req.body.freezeMode === "1" ? "1" : "0");
     setState("show_routes", req.body.showRoutes === "1" ? "1" : "0");
+    res.redirect("/gamemaster");
+});
+
+router.post("/gamemaster/reverse_attack", requireGamemaster, (req, res) => {
+    const teamId = Number(req.body.teamId);
+    const effect = String(req.body.effect || "none");
+    const duration = Number(req.body.duration);
+    const allowedEffects = new Set([
+        "none",
+        "captcha",
+        "scramble",
+        "throttle",
+        "blackout",
+    ]);
+    const allowedDurations = new Set([30, 60, 120, 300]);
+
+    if (!allowedEffects.has(effect)) {
+        return res.status(400).send("Invalid reverse attack effect.");
+    }
+    if (effect !== "none" && (!Number.isInteger(teamId) || teamId <= 0)) {
+        return res.status(400).send("Select a target team.");
+    }
+    if (effect !== "none" && !allowedDurations.has(duration)) {
+        return res.status(400).send("Invalid reverse attack duration.");
+    }
+
+    if (effect === "none") {
+        setState("reverse_effect", "none");
+        setState("reverse_team_id", "0");
+        setState("reverse_until", "0");
+        setState("reverse_nonce", "");
+        return res.redirect("/gamemaster");
+    }
+
+    const teamExists = db
+        .prepare("SELECT id FROM ctf_teams WHERE id = ?")
+        .get(teamId);
+    if (!teamExists) return res.status(400).send("Target team not found.");
+
+    setState("reverse_effect", effect);
+    setState("reverse_team_id", String(teamId));
+    setState("reverse_until", String(Date.now() + duration * 1000));
+    setState("reverse_nonce", crypto.randomBytes(16).toString("base64url"));
     res.redirect("/gamemaster");
 });
 

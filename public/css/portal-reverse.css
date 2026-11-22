@@ -1,0 +1,133 @@
+body.reverse-scramble main,
+body.reverse-scramble .archive {
+    animation: portalScramble 0.16s steps(2, end) infinite;
+    filter: hue-rotate(12deg) contrast(1.08);
+}
+
+body.reverse-scramble .container {
+    animation: portalScramble 0.16s steps(2, end) infinite;
+    filter: hue-rotate(12deg) contrast(1.08);
+}
+
+#portal-telemetry {
+    position: relative;
+    z-index: 9000;
+}
+
+#portal-telemetry > div {
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(96, 165, 250, 0.35);
+    background: #10243a;
+    color: #dbeafe;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+#portal-telemetry > div[hidden] {
+    display: none;
+}
+
+#portal-broadcast-banner {
+    background: #312e81;
+}
+
+#portal-freeze-banner {
+    background: #451a03;
+    color: #ffedd5;
+}
+
+body.reverse-throttle main,
+body.reverse-throttle .archive,
+body.reverse-blackout main,
+body.reverse-blackout .archive {
+    pointer-events: none;
+    user-select: none;
+}
+
+body.reverse-blackout {
+    overflow: hidden;
+}
+
+body.reverse-blackout .container,
+body.reverse-blackout main,
+body.reverse-blackout .archive {
+    pointer-events: none;
+    user-select: none;
+}
+
+@keyframes portalScramble {
+    0% { transform: translate(0, 0) skewX(0); }
+    33% { transform: translate(3px, -2px) skewX(-0.3deg); }
+    66% { transform: translate(-3px, 2px) skewX(0.3deg); }
+}
+
+#portal-reverse-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    place-items: center;
+    background: rgba(8, 13, 24, 0.97);
+    backdrop-filter: blur(12px);
+}
+
+#portal-reverse-overlay[hidden] {
+    display: none;
+}
+
+.portal-reverse-panel {
+    width: min(520px, calc(100% - 32px));
+    padding: 28px;
+    border: 1px solid #7c3aed;
+    background: #101827;
+    text-align: center;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+}
+
+.portal-reverse-panel .eyebrow {
+    color: #60a5fa;
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+#portal-captcha-prompt {
+    min-height: 44px;
+    display: block;
+    margin: 16px 0;
+    padding: 12px;
+    border: 1px dashed #7c3aed;
+    color: #e9d5ff;
+    font: 800 20px monospace;
+    letter-spacing: 3px;
+}
+
+#portal-captcha-answer {
+    width: 100%;
+    height: 44px;
+    margin-bottom: 10px;
+    border: 1px solid #1c2b43;
+    background: #080d18;
+    color: #e8eef8;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+#portal-captcha-submit {
+    width: 100%;
+    height: 44px;
+    border: 1px solid #7c3aed;
+    background: #3b2064;
+    color: white;
+    cursor: pointer;
+}
+
+.portal-reverse-shake {
+    animation: portalShake 0.18s linear 2;
+}
+
+@keyframes portalShake {
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}

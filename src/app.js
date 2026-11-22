@@ -1,4 +1,5 @@
 const express = require("express");
+const expressLayouts = require("express-ejs-layouts");
 const helmet = require("helmet");
 const path = require("node:path");
 const ctfRoutes = require("./routes/ctf");
@@ -11,6 +12,9 @@ app.disable("x-powered-by");
 // Configure EJS.
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+
+app.use(expressLayouts);
+app.set("layout", "layouts/corp");
 
 // Security headers.
 app.use(helmet());

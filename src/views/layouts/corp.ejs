@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            <%= typeof title !== 'undefined' ? title : 'CTF Engine' %>
+        </title>
+        <link rel="stylesheet" href="/css/portal-reverse.css">
+    </head>
+    <body>
+        <div id="portal-telemetry" aria-live="polite">
+            <div id="portal-watch-banner" hidden>BLUE TEAM WATCH ACTIVE</div>
+            <div id="portal-incident-banner" hidden>INCIDENT STATUS ACTIVE</div>
+            <div id="portal-broadcast-banner" hidden></div>
+            <div id="portal-freeze-banner" hidden>PORTAL SUBMISSIONS FROZEN</div>
+        </div>
+        <div id="portal-reverse-overlay" hidden>
+            <div class="portal-reverse-panel">
+                <p class="eyebrow">BLUE TEAM COUNTERMEASURE</p>
+                <h2 id="portal-reverse-title">Portal Interference</h2>
+                <p id="portal-reverse-copy"></p>
+                <div id="portal-captcha-ui" hidden>
+                    <strong id="portal-captcha-round"></strong>
+                    <code id="portal-captcha-prompt"></code>
+                    <input
+                        id="portal-captcha-answer"
+                        maxlength="16"
+                        placeholder="Enter answer"
+                        autocomplete="off"
+                    />
+                    <button id="portal-captcha-submit" type="button">Continue</button>
+                </div>
+                <p id="portal-reverse-countdown"></p>
+            </div>
+        </div>
+        <div class="container">
+            <%- body %>
+            <!-- Your child page injects right here -->
+        </div>
+        <script src="/js/portal-reverse.js"></script>
+    </body>
+</html>

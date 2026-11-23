@@ -194,4 +194,20 @@ module.exports = [
         flag: "SOMBRA{remote_work_security_7e8f9g0h}",
         active: 1,
     },
+    {
+        id: "IT I need help",
+        name: "IT I need help",
+        category: "Information Disclosure",
+        points: 200,
+        objective: "Seems like IT doesn't clean up after themselves.",
+        description:
+            "IT support often leaves behind sensitive information or misconfigurations. Your task is to identify and exploit these oversights.",
+        hints: [
+            "Look for any leftover files or documentation that might contain sensitive information.",
+            "Check for any misconfigurations in IT systems that could be exploited.",
+            "Be cautious and ensure you are not violating any laws or regulations while performing this task.",
+        ],
+        flag: "SOMBRA{it_i_need_help_adnu819z}",
+        active: 1,
+    },
 ];

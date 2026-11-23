@@ -100,7 +100,7 @@ function setState(key, value) {
 router.get("/gamemaster/login", (req, res) => {
     if (isAuthenticated(req)) return res.redirect("/gamemaster");
 
-    res.render("gamemaster-login", {
+    res.render("gamemaster/gamemaster-login", {
         layout: "layouts/gamemaster",
         error: req.query.error === "1",
     });
@@ -207,7 +207,7 @@ router.get("/gamemaster", requireGamemaster, (req, res) => {
         )
         .all();
 
-    res.render("gamemaster", {
+    res.render("gamemaster/gamemaster", {
         layout: "layouts/gamemaster",
         state: getState(),
         teams,

@@ -131,7 +131,7 @@ router.get("/ctf", (req, res) => {
     const leaderboard = getLeaderboard();
     const gamemaster = getGamemasterState(participant?.team_id);
 
-    res.render("ctf", {
+    res.render("ctf/ctf", {
         layout: "layouts/ctf",
         challenges: publicChallenges(),
         leaderboard: leaderboard.slice(0, 10),
@@ -294,7 +294,7 @@ router.get("/ctf/end-game", (req, res) => {
     const teamState = getTeamState(teamName);
     const gamemaster = getGamemasterState(participant?.team_id);
 
-    res.render("ctf-end-game-survey", {
+    res.render("ctf/ctf-end-game-survey", {
         layout: "layouts/ctf",
         teamName,
         teamScore: teamState.teamScore,
@@ -305,7 +305,7 @@ router.get("/ctf/end-game", (req, res) => {
 const fs = require("fs").promises;
 const path = require("path");
 
-const SURVEY_FILE = path.join(__dirname, "survey_responses.json");
+const SURVEY_FILE = path.join(__dirname, "../../../data/survey_responses.json");
 router.post("/ctf/end-game", async (req, res) => {
     const participant = readParticipantSession(req);
     const teamName = participant?.team_name || "Anonymous";

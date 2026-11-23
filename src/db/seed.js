@@ -330,19 +330,68 @@ function seed(db) {
         .prepare("SELECT COUNT(*) AS count FROM support_tickets")
         .get().count;
     if (ticketCount === 0) {
-        db.prepare(
+        const insertTicket = db.prepare(
             `
             INSERT INTO support_tickets (
                 ticket_no, requester_id, assigned_to, subject, description, status, priority
             ) VALUES (?, ?, ?, ?, ?, ?, ?)
         `,
-        ).run(
+        );
+        insertTicket.run(
             "ST-1001",
             3,
             2,
             "VPN access issue",
             "Unable to connect to the corporate VPN from the San Antonio office.",
             "open",
+            "normal",
+        );
+
+        insertTicket.run(
+            "ST-1002",
+            4,
+            2,
+            "Email server outage",
+            "Corporate email server is currently down.",
+            "open",
+            "high",
+        );
+
+        insertTicket.run(
+            "ST-1003",
+            5,
+            2,
+            "Printer malfunction",
+            "The printer on the 3rd floor is not functioning correctly.",
+            "open",
+            "normal",
+        );
+
+        insertTicket.run(
+            "ST-1004",
+            6,
+            2,
+            "Network connectivity issue",
+            "Users in the San Antonio office are experiencing intermittent network connectivity problems.",
+            "open",
+            "normal",
+        );
+        insertTicket.run(
+            "ST-1005",
+            7,
+            2,
+            "Server maintenance",
+            "Scheduled maintenance for the corporate servers this weekend.",
+            "open",
+            "normal",
+        );
+        insertTicket.run(
+            "ST-1006",
+            8,
+            2,
+            "Sombra flag",
+            "SOMBRA{it_i_need_help_adnu819z}",
+            "closed",
             "normal",
         );
     }

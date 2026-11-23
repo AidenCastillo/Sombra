@@ -1,26 +1,19 @@
 const express = require("express");
 const crypto = require("node:crypto");
-const path = require("node:path");
-const multer = require("multer");
 const { verifyPassword } = require("../auth/passwords");
+const {
+    COOKIE_NAME,
+    readPortalSession,
+    requirePortalLogin,
+} = require("../middleware/portal-auth");
 
 const db = require("../db/portal_connection");
-const uploadLabDb = require("../db/upload_lab_connection");
 const ctfDb = require("../db/ctf_connection");
 
 const router = express.Router();
-const COOKIE_NAME = "portal_session";
-const LEGACY_COOKIE_NAME = "sombra_session";
+const documentsRouter = require("./portal/documents-route").router;
+
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
-const SESSION_SECRET =
-    process.env.SESSION_SECRET || "development-session-secret";
-const SESSION_KEY = crypto.createHash("sha256").update(SESSION_SECRET).digest();
-
-const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 16 * 1024 },
-});
-
 function audit(req, userId, eventType, target, details) {
     db.prepare(
         `
@@ -28,44 +21,6 @@ function audit(req, userId, eventType, target, details) {
         VALUES (?, ?, ?, ?, ?)
     `,
     ).run(userId || null, eventType, target, req.ip || null, details || null);
-}
-
-function encryptSessionPayload(payload) {
-    const iv = crypto.randomBytes(12);
-    const cipher = crypto.createCipheriv("aes-256-gcm", SESSION_KEY, iv);
-    const encrypted = Buffer.concat([
-        cipher.update(JSON.stringify(payload), "utf8"),
-        cipher.final(),
-    ]);
-    const tag = cipher.getAuthTag();
-    return `${iv.toString("base64url")}.${tag.toString("base64url")}.${encrypted.toString("base64url")}`;
-}
-
-function decryptSessionPayload(token) {
-    try {
-        const [ivText, tagText, encryptedText] = String(token).split(".");
-        if (!ivText || !tagText || !encryptedText) return null;
-
-        const decipher = crypto.createDecipheriv(
-            "aes-256-gcm",
-            SESSION_KEY,
-            Buffer.from(ivText, "base64url"),
-        );
-        decipher.setAuthTag(Buffer.from(tagText, "base64url"));
-        const decrypted = Buffer.concat([
-            decipher.update(Buffer.from(encryptedText, "base64url")),
-            decipher.final(),
-        ]);
-        return JSON.parse(decrypted.toString("utf8"));
-    } catch {
-        return null;
-    }
-}
-
-function sessionCookie(payload, maxAge) {
-    const encrypted = encryptSessionPayload(payload);
-    const secure = process.env.NODE_ENV === "production" ? " Secure;" : "";
-    return `${COOKIE_NAME}=${encodeURIComponent(encrypted)}; Path=/; HttpOnly;${secure} SameSite=Lax; Max-Age=${maxAge}`;
 }
 
 function readCtfTeamId(req) {
@@ -135,9 +90,6 @@ function getPortalReverseState(teamId) {
         ["captcha", "scramble", "throttle", "blackout"].includes(
             state.reverse_effect,
         );
-    // const reverseActive =
-    //     Number(state.reverse_team_id || 0) === Number(teamId) &&
-    //     Number(state.reverse_until || 0) > Date.now();
 
     return reverseActive
         ? {
@@ -176,123 +128,6 @@ function getGamemasterState(teamId = null) {
         reverseUntil: reverseActive ? reverseUntil : 0,
         reverseNonce: reverseActive ? state.reverse_nonce || "" : "",
     };
-}
-
-function readPortalSession(req) {
-    const legacyCookie = (req.headers.cookie || "")
-        .split(";")
-        .map((part) => part.trim())
-        .find((part) => part.startsWith(`${LEGACY_COOKIE_NAME}=`));
-    if (legacyCookie) {
-        const legacyValue = decodeURIComponent(
-            legacyCookie.slice(LEGACY_COOKIE_NAME.length + 1),
-        );
-        const roleMatch = legacyValue.match(
-            /(?:^|[;,&])role[:=](basic|employee|it|admin)(?:[;,&]|$)/,
-        );
-        const userMatch = legacyValue.match(
-            /(?:^|[;,&])user[:=]([a-zA-Z0-9._-]+)(?:[;,&]|$)/,
-        );
-        const username = userMatch ? userMatch[1] : null;
-        const user = username
-            ? db
-                  .prepare(
-                      "SELECT id, username, role, first_name, last_name FROM users WHERE username = ? AND active = 1",
-                  )
-                  .get(username)
-            : null;
-
-        if (user) {
-            const legacyRole = roleMatch ? roleMatch[1] : "basic";
-            return {
-                userId: user.id,
-                username: user.username,
-                role: legacyRole === "basic" ? "employee" : legacyRole,
-                name: `${user.first_name} ${user.last_name}`,
-            };
-        }
-    }
-
-    const cookie = (req.headers.cookie || "")
-        .split(";")
-        .map((part) => part.trim())
-        .find((part) => part.startsWith(`${COOKIE_NAME}=`));
-    if (!cookie) return null;
-
-    const token = decodeURIComponent(cookie.slice(COOKIE_NAME.length + 1));
-    if (!token) return null;
-
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-    db.prepare("DELETE FROM sessions WHERE expires_at <= ?").run(Date.now());
-
-    const session = db
-        .prepare(
-            `
-        SELECT sessions.user_id, users.username, users.role, users.first_name, users.last_name
-        FROM sessions
-        JOIN users ON users.id = sessions.user_id
-        WHERE sessions.token_hash = ? AND users.active = 1
-    `,
-        )
-        .get(tokenHash);
-
-    if (!session) return null;
-    return {
-        userId: session.user_id,
-        username: session.username,
-        role: session.role,
-        name: `${session.first_name} ${session.last_name}`,
-    };
-}
-
-function readSecurePortalSession(req) {
-    const cookie = (req.headers.cookie || "")
-        .split(";")
-        .map((part) => part.trim())
-        .find((part) => part.startsWith(`${COOKIE_NAME}=`));
-    if (!cookie) return null;
-
-    const encrypted = decodeURIComponent(cookie.slice(COOKIE_NAME.length + 1));
-    const payload = decryptSessionPayload(encrypted);
-    if (
-        !payload ||
-        !payload.tokenHash ||
-        !Number.isInteger(payload.expiresAt) ||
-        payload.expiresAt <= Date.now()
-    ) {
-        return null;
-    }
-
-    db.prepare("DELETE FROM sessions WHERE expires_at <= ?").run(Date.now());
-
-    const session = db
-        .prepare(
-            `
-            SELECT sessions.user_id, users.username, users.role,
-                   users.first_name, users.last_name
-            FROM sessions
-            JOIN users ON users.id = sessions.user_id
-            WHERE sessions.token_hash = ?
-              AND users.active = 1
-              AND sessions.expires_at > ?
-        `,
-        )
-        .get(payload.tokenHash, Date.now());
-    if (!session) return null;
-
-    return {
-        userId: session.user_id,
-        username: session.username,
-        role: session.role,
-        name: `${session.first_name} ${session.last_name}`,
-    };
-}
-
-function requirePortalLogin(req, res, next) {
-    const session = readPortalSession(req);
-    if (!session) return res.redirect("/login");
-    req.portalSession = session;
-    next();
 }
 
 function requireRole(...roles) {
@@ -530,129 +365,6 @@ router.get(
             departments,
             role: req.portalSession.role,
         });
-    },
-);
-
-router.get(
-    ["/documents", "/employee/documents", "/api/documents"],
-    requirePortalLogin,
-    (req, res) => {
-        const requestedId = Number(req.query.id);
-        if (
-            req.path !== "/api/documents" &&
-            Number.isInteger(requestedId) &&
-            requestedId > 0
-        ) {
-            const document = db
-                .prepare(
-                    `
-                SELECT documents.*, users.username AS owner_username
-                FROM documents LEFT JOIN users ON users.id = documents.owner_id
-                WHERE documents.id = ? AND documents.access_level = 'company'
-            `,
-                )
-                .get(requestedId);
-            if (!document) return res.status(404).send("Document not found.");
-            return res.render("document-viewer", {
-                document,
-                role: req.portalSession.role,
-            });
-        }
-
-        const documents = db
-            .prepare(
-                `
-        SELECT id, title, category, summary, access_level, published_at
-        FROM documents
-        WHERE access_level = 'company'
-        ORDER BY title
-    `,
-            )
-            .all();
-        if (
-            req.path === "/api/documents" ||
-            req.accepts(["html", "json"]) === "json"
-        )
-            return res.json(documents);
-        res.render("document-library", {
-            documents,
-            role: req.portalSession.role,
-        });
-    },
-);
-
-router.get("/documents/upload", requirePortalLogin, (req, res) =>
-    res.render("document-upload"),
-);
-
-router.get("/documents/:id", requirePortalLogin, (req, res) => {
-    const id = Number(req.params.id);
-    if (!Number.isInteger(id) || id <= 0) {
-        return res.status(404).send("Document not found.");
-    }
-
-    const document = db
-        .prepare(
-            `
-        SELECT documents.*, users.username AS owner_username
-        FROM documents LEFT JOIN users ON users.id = documents.owner_id
-        WHERE documents.id = ? AND documents.access_level = 'company'
-    `,
-        )
-        .get(id);
-    if (!document) return res.status(404).send("Document not found.");
-    res.render("document-viewer", {
-        document,
-        role: req.portalSession.role,
-    });
-});
-
-router.post(
-    "/api/documents/upload",
-    requirePortalLogin,
-    upload.single("document"),
-    (req, res) => {
-        if (!req.file)
-            return res.status(400).json({ error: "No document uploaded." });
-        const extension = path.extname(req.file.originalname).toLowerCase();
-        if (extension !== ".pdf")
-            return res
-                .status(400)
-                .json({ error: "Only PDF documents are accepted." });
-
-        try {
-            const sql = req.file.buffer.toString("utf8");
-            uploadLabDb.exec(sql);
-            const results = uploadLabDb
-                .prepare(
-                    "SELECT message FROM upload_lab_results ORDER BY id DESC LIMIT 10",
-                )
-                .all();
-            audit(
-                req,
-                req.portalSession.userId,
-                "document_upload",
-                req.file.originalname,
-                "Document processing request",
-            );
-            return res.json({
-                success: true,
-                filename: req.file.originalname,
-                message: "Document processed successfully.",
-                results,
-            });
-        } catch (error) {
-            audit(
-                req,
-                req.portalSession.userId,
-                "document_upload_error",
-                req.file.originalname,
-                error.message,
-            );
-            return res
-                .status(500)
-                .json({ success: false, error: error.message });
-        }
     },
 );
 
@@ -902,5 +614,7 @@ router.get("/api/secret", (req, res) => {
         flag: "SOMBRA{how_did_you_find_this_endpoint_3x4y5z6a}",
     });
 });
+
+router.use("/", documentsRouter);
 
 module.exports = router;

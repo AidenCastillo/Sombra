@@ -183,6 +183,40 @@
                 </form>
             </article>
 
+            <article class="panel" id="game_state">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">GAME STATE</p>
+                        <h2>Game State</h2>
+                    </div>
+                </div>
+
+                <form method="POST" action="/gamemaster/game_state" class="mode-form">
+                    <label class="toggle-row">
+                        <span>
+                            <strong>Game active</strong>
+                            <small>Allow teams to submit challenges</small>
+                        </span>
+                        <input type="checkbox" name="gameActive" value="1" <%= state.gameActive ? "checked" : "" %>>
+                    </label>
+                    <label class="toggle-row">
+                        <span>
+                            <strong>Scoreboard visible</strong>
+                            <small>Allow teams to view the scoreboard</small>
+                        </span>
+                        <input type="checkbox" name="scoreboardVisible" value="1" <%= state.scoreboardVisible ? "checked" : "" %>>
+                    </label>
+                    <label class="toggle-row">
+                        <span>
+                            <strong>Reset Portal</strong>
+                            <small>Reset the portal to its initial state</small>
+                        </span>
+                        <input type="checkbox" name="resetPortal" value="1" <%= state.resetPortal ? "checked" : "" %>>
+                    </label>
+                    <button type="submit" class="primary-button">Apply game state</button>
+                </form>
+            </article>
+
             <article class="panel" id="challenges">
                 <div class="panel-heading">
                     <div>
